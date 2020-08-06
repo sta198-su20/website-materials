@@ -1,0 +1,99 @@
+---
+title: "STA 199 Sticker"
+author: "Maria Tackett"
+date: "01/02/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning=FALSE,
+                      message=FALSE)
+```
+
+This document contains the code to make the sticker for [STA 199: Intro to Data Science](https://www2.stat.duke.edu/courses/Spring19/sta199.001/). The following packages are used in this project: 
+
+```{r packages}
+library(hexSticker)
+library(readr)
+library(tidyverse)
+library(tibble)
+library(showtext)
+library(nnet)
+library(knitr)
+```
+
+## The Data
+
+The data is the  [Capital Bikeshare data set](https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset) pulled from the UCI Machine Learning Repository. The following variables are used in this project:
+
+- `season`: 1 - Winter, 2 - Spring, 3 - Summer 4 - Fall 
+- `atemp`: feeling temperature &#247; 50 (in degrees Celsius)
+<br> 
+
+```{r data}
+bikeshare <- read_csv("https://raw.githubusercontent.com/matackett/data/master/capital-bikeshare.csv")    
+bikeshare <- bikeshare %>%
+  mutate(season = case_when(
+    season==1 ~ "Winter",
+    season==2 ~ "Spring",
+    season==3 ~ "Summer",
+    season==4 ~ "Fall"
+  )) %>% 
+  select(season,cnt,atemp)
+```
+
+## Density Plot
+
+A multinomial logistic regression model is used to create the main plot. The response variable is `season` and the predictor variable is `atemp`. 
+
+```{r multinom-logistic}
+p <- ggplot(data=bikeshare,aes(x=cnt,fill=season)) +
+  geom_density(alpha=0.7) +
+  scale_fill_manual( values = c("#F8766D","#7CAE00","#C77CFF","#00BFC4")) +
+  theme_void() +
+  theme(legend.position="none") 
+
+library(survminer)
+library(ggfortify)
+library(survival)
+got <- read.csv("C:/Users/Yue/Projects/Guest lecture/got.csv")
+
+got$screen <- got$s1_screenTime + got$s2_screenTime + got$s3_screenTime + 
+        got$s4_screenTime + got$s5_screenTime + got$s6_screenTime +
+        got$s7_screenTime
+
+got$stark = ifelse(got$house == "Stark", 1, 0)
+got$baratheon = ifelse(got$house == "Baratheon", 1, 0)
+got$targaryen = ifelse(got$house == "Targaryen", 1, 0)
+got$lannister = ifelse(got$house == "Lannister", 1, 0)
+
+fit2 <- survfit(Surv(duration_in_episodes, is_dead) ~ gender, 
+                data = got[got$gender != "",])
+p7 <- autoplot(fit2) + 
+        theme_void() + 
+        theme(legend.position = "none",
+              plot.title = element_blank(),
+              axis.title.x = element_blank(),
+              axis.title.y = element_blank(),
+              axis.text.x = element_blank(),
+              axis.text.y = element_blank()) +
+        xlim(c(0, 66))
+```
+
+## Make Sticker
+
+```{r add-font}
+# add font to be used in sticker function
+font_add_google("Open Sans", "open")
+```
+
+```{r make-sticker}
+# create and save sticker
+sticker(p7, package="STA 198",p_color="#012169", p_family="open", p_size=17.5, p_y=0.55, s_x=1, s_y=1.1, s_width=1.3, s_height=1, h_fill = "#FFFFFF", h_color="#012169", h_size =0.8, filename="sta198_sticker.png")
+```
+
+```{r display-sticker}
+#display final sticker
+include_graphics("static/img/sta199_sticker.png")
+```
