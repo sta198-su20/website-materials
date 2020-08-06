@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>STA 198L: Intro to Health Data Science on STA 198 | Intro to Health Data Science</title>
+    <link>/</link>
+    <description>Recent content in STA 198L: Intro to Health Data Science on STA 198 | Intro to Health Data Science</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title></title>
+      <link>/schedule.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/schedule.html</guid>
+      <description>Note:  This schedule may be updated as the semester progresses, with all changes documented here. Due dates for the exams and project will not be changed.
+May 18: Clarified schedule re: &amp;ldquo;assigned&amp;rdquo; HW and labs vs. bonus labs for no credit; fixed lab dates.
+July 01: Updated schedule to reflect July 04 Holiday. On Monday, July 06, Midterm Review 02 has been replaced by Lecture 15 which was originally scheduled for Friday, July 03.</description>
+    </item>
+    
+    <item>
+      <title>Course Policies</title>
+      <link>/policies.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/policies.html</guid>
+      <description>Important Administrative Details STA 198L is a unique two-part online course that spans both summer sessions at Duke University. This course is split into two half-credit sessions: STA 198L-1 and STA 198L-2. Students must enroll in and complete both sections within the same summer in order to receive credit.
+This course will be graded on the traditional letter scale. All students will receive a Z grade upon completion of STA 198L-1.</description>
+    </item>
+    
+  </channel>
+</rss>
