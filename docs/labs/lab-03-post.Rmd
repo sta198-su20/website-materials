@@ -1,0 +1,163 @@
+---
+title: "Lab 03"
+author: "STA 198 Summer 2020 (Jiang)"
+output:
+  rmarkdown::html_document:
+    css: "./sta198-labs.css"
+    toc: TRUE
+    toc_float: TRUE
+---
+<br>
+
+Today, we will be learning how to use R to calculate probabilities corresponding to events for some of the distributions we covered in class. There is no associated dataset, but I will be referencing some examples you've seen before.
+
+Click on the following link to clone the lab directory into the class workspace: 
+
+[https://classroom.github.com/a/1tOb2_jE](https://classroom.github.com/a/1tOb2_jE)
+
+This assignment is due June 09 at 11:59p via Gradescope (you know the drill). 
+
+As a brief reminder: if you're unsure how a function works or what its arguments are, simply type `?` in front of it and hit enter (`?pbinom` for instance). The "Help" tab will open and provide a summary of the function as well as some examples.
+
+# The binomial distribution
+
+`R` has a variety of functions that make working with distributions much easier. For the binomial distribution, we can... 
+
+- Use the `dbinom` function to calculate the mass at a given point (i.e., the probability of obtaining exactly *k* successes in n independent Bernoulli trials with success probability *p*)
+- Use the `pbinom` function to calculate left-tail probabilities (i.e., the probability of obtaining *k* *or fewer* successes)
+- Use the `rbinom` function to create random samples (we won't really be using this, but it's included here for completeness)
+
+**Example**: For a random sample of 12 births in the US, what is the probability of observing exactly 3 preterm births, if the births are independent and the probability of a preterm birth is 0.1?
+
+**Answer**: This is a binomial distribution with 12 total draws and success probability of 0.1. We are interested in evaluating P(X = 3), where X follows a binomial distribution with n = 12 and p = 0.1. Note that the syntax is `dbinom(k, n, p)`, for obtaining k successes in n independent Bernoulli trials with success probability p.
+
+```{r binom1}
+dbinom(3, 12, 0.1)
+```
+
+**Example**: For a random sample of 12 births in the US, what is the probability of observing 3 *or fewer* preterm births, if the births are independent and the probability of a preterm birth is 0.1?
+
+**Answer**: This is a binomial distribution with 12 total draws and success probability of 0.1. We are interested in evaluating P(X ≤ 3), where X follows a binomial distribution with n = 12 and p = 0.1. The syntax is `pbinom(k, n, p)`, for obtaining *k* *or fewer* successes in n independent Bernoulli trials with success probability p.
+
+```{r binom2}
+pbinom(3, 12, 0.1)
+```
+
+**Example**: For a random sample of 12 births in the US, what is the probability of observing more than 6 preterm births, if the births are independent and the probability of a preterm birth is 0.1?
+
+**Answer**: This is a binomial distribution with 12 total draws and success probability of 0.1. We are interested in evaluating P(X > 6) = 1 - P(X ≤ 6), where X follows a binomial distribution with n = 12 and p = 0.1. 
+
+```{r binom3}
+1 - pbinom(6, 12, 0.1)
+```
+
+**Example**: Simulate 50 random samples from a binomial distribution where there were 100 total independent Bernoulli draws with success probability 0.4. Save these draws as a vector named `binom_draws`.
+
+**Answer**: 
+
+```{r binom4}
+binom_draws <- rbinom(50, 100, 0.4)
+```
+
+Note the syntax here. When using `rbinom`, we start with the number of simulated draws we want, then the `n` parameter from the binomial distribution, and then the success probability. Do not get the number of simulated draws confused with the number of Bernoulli draws!
+
+# The Poisson distribution
+
+Similar functions exist for the Poisson distribution. We can...
+
+- Use the `dpois` function to calculate the mass at a given point
+- Use the `ppois` function to calculate left-tail probabilities (i.e., the probability of obtaining *k* *or fewer* counts, with a given $\lambda$)
+- Use the `rpois` function to create random samples from the Poisson distribution (we won't really be using this, but it's included here for completeness)
+
+**Example**: Suppose the monthly number of ulcerative colitis flare-ups in an IBD patient follows a Poisson distribution with parameter $\lambda$ = 1. What is the probability that this patient will have 3 flare-ups in a given month?
+
+**Answer**: This is a Poisson distribution with parameter $\lambda$ = 1. We are interested in evaluating P(X = 3), where X follows a Poisson($\lambda$) distribution. Note that the syntax is `dpois(k, lambda)`, where $k$ is the count and $\lambda$ is the parameter.
+
+```{r pois1}
+dpois(3, 1)
+```
+
+**Example**: Suppose the monthly number of ulcerative colitis flare-ups in an IBD patient follows a Poisson distribution with parameter $\lambda$ = 1. What is the probability that this patient will have more than 2 flare-ups in a given month?
+
+**Answer**: This is a Poisson distribution with parameter $\lambda$ = 1. We are interested in evaluating P(X > 2) = 1 - P(X ≤ 2), where X follows a Poisson($\lambda$) distribution. Note that the syntax is `qpois(k, lambda)`.
+
+```{r pois2}
+1 - ppois(2, 1)
+```
+
+**Example**: Simulate 200 random samples from a Poisson distribution with parameter 2. Save these draws as a vector named `pois_draws`.
+
+**Answer**: 
+
+```{r pois3}
+pois_draws <- rpois(200, 2)
+```
+
+Note the syntax here. When using `rbinom`, we start with the number of simulated draws we want, then the `n` parameter from the binomial distribution, and then the success probability. Do not get the number of simulated draws confused with the number of Bernoulli draws!
+
+# The normal (Gaussian) distribution
+
+You guessed it, we can do the same for the normal distribution.
+
+- Use the `dnorm` function to calculate the *density* of the normal distribution at a given point
+- Use the `pnorm` function to calculate left-tail probabilities (i.e., the area under the curve, to the *left* of the point you choose). This is the integral from $-\infty$ to the point you specify 
+- Use the `rnorm` function to create random samples from the normal distribution (we won't really be using this, but it's included here for completeness)
+
+We will also discuss one additional function that is essentially the inverse of `pnorm`:
+
+- Use the `qnorm` function to determine the value corresponding to a specific quantile of the normal distribution
+
+**Note**: when you are using these functions, you must specify the *standard deviation*, not the variance.
+
+**Example**: Suppose the mean bone density for a 65-year old white woman is normally distributed with mean 809 mg/cm$^3$ and standard deviation of 140 mg/cm$^3$. Your bone density is 698 mg/cm$^3$. What percentile are you at for bone density, compared to your peers?
+
+**Answer**: We are interested in evaluating P(X ≤ 698), where X follows a N(809, 140$^2$) distribution. Note that the syntax is `pnorm(value, mean, sd)`.
+
+```{r norm1}
+pnorm(698, 809, 140)
+```
+
+**Example**: Suppose the mean bone density for a 65-year old white woman is normally distributed with mean 809 mg/cm$^3$ and standard deviation of 140 mg/cm$^3$. Your bone density is 950 mg/cm$^3$. What percent of women have bones that are even denser than yours?
+
+**Answer**: We are interested in evaluating P(X > 950), where X follows a N(809, 140$^2$) distribution. This is equal to 1 - P(X ≤ 950).
+
+```{r norm2}
+1 - pnorm(950, 809, 140)
+```
+
+**Example**: Suppose the mean bone density for a 65-year old white woman is normally distributed with mean 809 mg/cm$^3$ and standard deviation of 140 mg/cm$^3$. Suppose the bottom 1\% of women in terms of bone density are at extreme risk for fractures. What bone density corresponds to this threshold?
+
+**Answer**: We are interested in calculating the 1st percentile of a N(809, 140$^2$) distirbution. This is given by
+
+```{r norm3}
+qnorm(0.01, 809, 140)
+```
+
+# Your turn!
+
+1. **5 points** Make sure your GitHub repository for this assignment has at least three commits, each with a meaningful commit message.
+
+**For all exercises, be careful with strict vs. non-strict inequalities.**
+
+According to CDC data, approximately 91% of North Carolina adults regularly use their seatbelt in cars.
+
+2. **3 points** What is the expected number of randomly selected North Carolinians out of 20 that regularly use their seatbelt in cars? (round to the nearest whole number of people)
+3. **3 points** Suppose you select a sample of 20 randomly selected North Carolinians. What is the probability that you would find exactly your expected number (from Exercise 2) who regularly wear seatbelts?
+4. **3 points** Now suppose you select a sample of 100 randomly selected North Carolinians. What is the expected number of regular seatbelt wears out of 100? 
+5. **3 points** What is the probability that you would find exactly that number (that you found in Exercise 4) out of 100 who are regular seatbelt wearers?
+6. **3 points** What is the probability that you would find fewer than 85 randomly selected North Carolinians out of 100 who are regular seatbelt wearers?
+7. **4 points** Suppose you select a random sample of 40 North Carolinians. What is the probability that you find more than 5 individuals who are NOT regular seatbelt wearers?
+
+Suppose that the number of fatalities due to car accidents in a given county follows the Poisson distribution with a given mean. According to NCDOT data, the 10-year average for Durham county is 23. Assume that this rate is constant and that car crash fatalities are independent (likely violated in practice due to multi-car collisions, but for the sake of these problems, assume they are).
+
+8. **3 points** What is the probability that there are exactly 23 fatalities due to car accidents in a given year?
+9. **3 points** What is the probability that Durham experiences more than 30 fatalities due to car accidents in a given year?
+10. **3 points** What is the probability that Durham experiences between 20 and 25 fatalities (inclusive) due to car accidents in a given year?
+11. **4 points** What is the probability that Durham does not experience any fatalities due to car accidents in a given *month*?
+
+Suppose the mean bone density for a 65-year old white woman is normally distributed with mean 809 mg/cm$^3$ and standard deviation of 140 mg/cm$^3$ (these are fairly accurate numbers).
+
+12. **3 points** What bone density corresponds to the 5th, 10th, 50th, and 99th percentiles?
+13. **3 points** The density of solid pine is 600 mg/cm$^3$. What is the probability that a randomly-sampled 65-year old white woman has bone density *less* than that of solid pine?
+14. **3 points** The density of solid mahogany is 710 mg/cm$^3$. What is the probability that a randomly-sampled 65-year old white woman has bone density *greater* than that of solid mahogany?
+15. **4 points** The density of plywood is 540 mg/cm$^3$. What is the probability that, out of 100 randomly-sampled unrelated 65-year old white women, at least 5 of them have bones less dense than plywood?

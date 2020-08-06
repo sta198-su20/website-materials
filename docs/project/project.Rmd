@@ -1,0 +1,289 @@
+---
+title: "Be a health data scientist!"
+output: 
+    html_document: 
+     css: "./project.css"
+     toc: true
+     toc_float: true
+     fig_caption: false
+---
+
+Interim check-in before **July 17**
+
+Report, slides, and repository due **July 29, 11:59pm**
+
+Presentations on **July 30 or July 31** 
+
+# Introduction
+
+**TLDR**: Pick (or create) a dataset and do something with it. That is your 
+final project.
+
+The final project for this class is based on the 
+[**ASA COVID-19 Virtual Data Challenge**](https://www2.stat.duke.edu/datafest-covid19/).
+There is a lot of work being done on modeling direct health outcomes of the 
+COVID-19 pandemic such as prediction of new cases or mortality rates. However,
+much less work is being done regarding the societal impacts of the pandemic 
+*other* than its direct health outcomes. For example, you could explore 
+associations involving COVID-19 vs. pollution levels, transportation, or 
+working from home. You could investigate changes in the number of people 
+posting on TikTok or do an analysis on online education. 
+
+This project will consist of a written analysis of a COVID-19 related dataset of 
+your own choosing or creation and an accompanying live presentation. This 
+dataset may already exist, or you may collect your own data using by scraping 
+the web or other means. The goal is for you to demonstrate proficiency in the 
+techniques we have covered in this class (and beyond, if you like) and apply 
+them to a dataset in a meaningful way.
+
+# Brief project logistics
+
+The final project may be done individually or in a group of up to *four* 
+students. You may choose your lab groups, or form different groups if desired.
+
+The three hard deliverables for the final project are
+
+- A written, reproducible report detailing your analysis
+- A GitHub repository corresponding to your report
+- A brief set of slides that correspond to your intended oral presentation 
+(ten minutes)
+
+**Due Wednesday, July 29 at 11:59p US Eastern Time on Gradescope.**
+
+Additionally, a brief, ten-minute virtual 
+oral presentation will be made at some time on 
+July 30 or 31 (flexible timing to accommodate schedules), and all group members 
+must present. No late projects are accepted.
+
+The grade breakdown is as follows:
+
+Total                                                   | 100 pts
+--------------------------------------------------------|--------
+**Written report**                                      | 60 pts
+**Slides**                                              | 15 pts
+**Repository**                                          | 5 pts
+**Live Presentation**                                   | 15 pts
+**Overall neatness and presentation style**             | 5 pts
+
+# Data sources
+
+In order for you to have the greatest chance of success with this project it is 
+important that you choose a manageable dataset. This means that the data should 
+be readily accessible and large enough that multiple relationships can be 
+explored. Ideally, your dataset’s variables should include both categorical and 
+continuous variables and have a sufficient number of observations.
+
+You can use any dataset that is publicly available or openly licensed. There 
+are many good resources available in GitHub. Some examples may be found on the
+[**ASA challenge website here (scroll down a bit)**](https://www2.stat.duke.edu/datafest-covid19/resources.html). As well,
+Dr. Mine Cetinkaya-Rundel has put together a great collection of resources and
+datasets [**available here**](https://github.com/mine-cetinkaya-rundel/covid19-r). 
+However, note that most of the examples presented are health-outcomes related
+and would thus not be suitable for the purposes of this project.
+
+All analyses must be done in RStudio, and your final written report and 
+analysis **must be reproducible**. This means that you must create an R Markdown
+document attached to a GitHub repository that will create your written report
+exactly upon knitting.
+
+# Project ideas
+
+Some resources for this final project are [**available here**](https://www2.stat.duke.edu/datafest-covid19/resources.html). Example
+topics drawn from the ASA Challenge website (and that were submitted) are as
+follows:
+
+- Quantifying the effect of the pandemic on college experiences
+- Examining associations between lockdown recommendations and policies on pollution
+- Analyzing relative search interest in vivid/weird dreams during the pandemic
+- Visualizing how the topics of COVID-19 publications in journals have varied 
+through the course of the pandemic
+- Creating interactive dashboards relating the pandemic to traffic patterns
+
+# Project components
+
+## Interim check-in
+
+By July 17th, you/your group should have an idea of what your project will be
+and the dataset that you will use. Before then, you must briefly check in with 
+the instructor one-on-one (or group-on-one, but all members must be present).
+This is to ensure that your project scope and dataset are appropriate.
+
+## Written report
+
+Your written report must be done using R Markdown. All team members must 
+contribute to the GitHub repository, with regular meaningful commits/pushes. 
+Before you finalize your write up, make sure the printing of code chunks is 
+turned off with the option `echo = FALSE`. 
+
+You must turn in your proposal as a .pdf to Gradescope in order to receive 
+credit. As well, it must match your GitHub repository *exactly*. The mandatory
+components of the report are as follows, but feel free to expand with additional
+sections as necessary. There is no page limit or requirement -- however, you
+must comprehensively address all aspects below. Please be judicious in what you
+decide to include in your final write-up.
+
+The written report is worth 60 points, broken down as
+
+Total                                                   | 60 pts
+--------------------------------------------------------|--------
+**Introduction/data**                                   | 10 pts
+**Methodology**                                         | 20 pts
+**Results**                                             | 20 pts
+**Discussion**                                          | 10 pts
+
+#### Introduction and data
+
+The introduction should introduce your general research question and your data 
+(where it came from, how it was collected, what are the cases, what are the 
+variables, etc.). 
+
+#### Methodology 
+
+The methodology section should include the variables used to address your 
+research question, as well as any useful visualizations or summary statistics.
+As well, you should introduce and justify the statistical method(s) that you 
+believe will be useful in answering your research question. 
+
+#### Results 
+
+Showcase how you arrived at answers to 
+your question using any techniques we have learned in this class (and some 
+beyond, if you're feeling adventurous). Provide the main results from your
+analysis. The goal is not to do an exhaustive 
+data analysis (i.e., do not calculate every statistic and procedure you have 
+learned for every variable), but rather let me know that you are proficient at 
+asking meaningful questions and answering them with results of data analysis, 
+that you are proficient in using R, and that you are proficient at interpreting 
+and presenting the results. Focus on methods that help you begin to answer your 
+research questions. 
+
+#### Discussion
+
+This section is a conclusion and discussion. This will require a 
+summary of what you have learned about your research question along with 
+statistical arguments supporting your conclusions. Also, critique your own 
+methods and provide suggestions for improving your analysis. Issues pertaining 
+to the reliability and validity of your data and appropriateness of the 
+statistical analysis should also be discussed here. A paragraph on what you 
+would do differently if you were able to start over with the project or what you 
+would do next if you were going to continue work on the project should also be 
+included.
+
+## Repository
+
+In addition to your Gradescope submissions, I will be checking your GitHub 
+repository. This repository should be contributed to equally by all team members
+and should include
+
+- RMarkdown file (formatted to clearly present all of your code and results)
+that will output the proposal and write-up in one document
+- Meaningful README file on the GitHub repository that contains a *codebook*
+for relevant variables
+- Dataset(s) (in csv or RData format, in a `/data` folder)
+- Presentation (if using Keynote/PowerPoint/Google Slides, export to PDF and put 
+in repo, in a `/presentation` folder)
+
+Style and format does count for this assignment, so please take the time to make 
+sure everything looks good and your data and code are properly formatted.
+
+## Slides
+
+In addition to the write-up, your team must also create presentation
+slides that summarize and showcase your project. Introduce your research question 
+and dataset, showcase visualizations, and provide some conclusions. These slides
+should serve as a brief visual accompaniment to your write-up and will be graded 
+for content and quality. For submission, convert these slides to a .pdf document
+to be submitted to Gradescope.
+
+## Presentation
+
+Sometime during July 30 or 31st, you/your group will make a live presentation 
+via Zoom using your slides. All group members must be present and contribute
+during the presentation. To allow for different time zones, I will be quite 
+flexible on when the presentation is. A sign-up link will be provided closer to
+the deadline.
+
+# Overall notes
+
+The project is very open ended. For instance, in creating a compelling 
+visualization(s) of your data in R, there is no limit on what tools or 
+packages you may use. You do not need to visualize all of the data at once. A 
+single high quality visualization will receive a much higher grade than a large 
+number of poor quality visualizations.
+
+Before you finalize your write up, make sure the printing of code chunks is 
+turned off with the option `echo = FALSE`. 
+
+Finally, pay attention to details in your write-up and presentation. Neatness, 
+coherency, and clarity will count.
+
+
+# Tips
+
+- Ask questions if any of the expectations are 
+unclear.
+
+- *Code*: In your write up your code should be hidden (`echo = FALSE`) so that 
+your document is neat and easy to read. However your document should include 
+all your code such that if I re-knit your Rmd file I should be able to obtain 
+the results you presented. **Exception:** If you want to highlight something 
+specific about a piece of code, you're welcome to show that portion. 
+
+#### If working on a team:
+
+- Merge conflicts will 
+happen, issues will arise, and that’s fine! Commit and push often, and ask 
+questions when stuck.
+
+- Make sure each team member is contributing, both in terms of quality and 
+quantity of contribution (we will be reviewing commits from different team 
+members).
+
+- All team members are 
+expected to contribute equally to the completion of this assignment and group 
+assessments will be given at its completion - anyone judged to not have 
+sufficient contributed to the final product will have their grade penalized. 
+While different teams members may have different backgrounds and abilities, it 
+is the responsibility of every team member to understand how and why all code 
+and approaches in 
+the assignment works.
+
+- You will be asked to fill out an anonymous survey where you 
+rate the contribution and teamwork of each team member. This survey may modify
+the individual grade received by each group member. 
+
+# Grading
+
+Grading of the project will take into account the following:
+
+- Content - What is the quality of research and/or policy question and relevancy 
+of data to those questions?
+- Correctness - Are statistical procedures carried out and explained correctly?
+- Writing and Presentation - What is the quality of the statistical presentation, 
+writing, and explanations?
+- Creativity and Critical Thought - Is the project carefully thought out? Are the 
+limitations carefully considered? Does it appear that time and effort went into 
+the planning and implementation of the project?
+
+A general breakdown of scoring is as follows:
+
+- *90%-100%*: Outstanding effort. Student understands how to apply all statistical 
+concepts, can put the results into a cogent argument, can identify weaknesses in 
+the argument, and can clearly communicate the results to others.
+- *80%-89%*: Good effort. Student understands most of the concepts, puts together 
+an adequate argument, identifies some weaknesses of their argument, and communicates 
+most results clearly to others.
+- *70%-79%*: Passing effort. Student has misunderstanding of concepts in several 
+areas, has some trouble putting results together in a cogent argument, and communication 
+of results is sometimes unclear.
+- *60%-69%*: Struggling effort. Student is making some effort, but has misunderstanding 
+of many concepts and is unable to put together a cogent argument. Communication 
+of results is unclear.
+- *Below 60%*: Student is not making a sufficient effort.
+
+# Late work policy
+
+**There is no late work accepted on this project.** Be sure to turn in your 
+work early to avoid any technological mishaps.
+
+**If you do not turn in your final project on time, you will not pass the course.**

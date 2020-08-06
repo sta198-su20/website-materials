@@ -1,0 +1,134 @@
+---
+title: HW 05
+author: STA 198 Spring 2020 (Jiang)
+date: "Due: Tuesday, June 30, 2020 at 11:59p"
+output:
+  rmarkdown::html_document:
+    css: "./sta199-hw.css"
+    toc: FALSE
+---
+
+The assignment repository is available here:
+
+[https://classroom.github.com/a/kPKsXqtS](https://classroom.github.com/a/kPKsXqtS)
+
+Before you begin the homework assignment, take some time to familiarize yourself with the `t.test` function in R, as we will be using this function to calculate p-values from one- and two-sample t-tests in R. A brief tutorial is given in the first part of this HW assignment (scroll down).
+
+# Data
+
+Postoperative sore throat is an annoying complication of intubation after surgery, particularly with wider gauge double-lumen tubes. Reutzler et al. (2013) performed an experimental study among patients having elective surgery who required intubation with a double-lumen tube. Prior to anesthesia, patients were randomly assigned to gargle either a licorice-based solution or sugar water (as placebo). Sore throat was evaluated 30 minutes, 90 minutes, and 4 hours after conclusion of the surgery, evaluated using an 11-point Likert scale (0 = no pain, 10 = worst pain).
+
+The data are available in your assignment repository as a .csv file. Some relevant variables of interest are:
+
+- preOp_gender: Gender (0 = Male; 1 = Female)
+- preOp_calcBMI: Body mass index in kg/m$^2$
+- treat: Treatment given (0 = Sugar placebo; 1 = Licorice solution)
+- pacu30min_throatPain: Sore throat pain score 30 minutes after arrival in PACU (11-point scale: 0 = No pain; 10 = Worst pain)
+- postOp4hour_throatPain: Sore throat pain score 4 hours after surgery (11-point scale: 0 = No pain; 10 = worst pain)
+
+
+To suppress printed messages and warnings in your R Markdown document, you may use the options `message = F` and `warning = F` in your R chunk. That is, we may start the R chunk with ` ```{r chunk-name, message = F, warning = F} `.
+
+```{r, message = F, warning = F}
+library(tidyverse)
+licorice <- read_csv("data/licorice.csv")
+```
+
+# t-tests using R
+
+### One sample t-tests
+
+If we have a dataset of interest, we can use the syntax `t.test(x, mu = _, alternative = _, conf.level = _)` to perform t-tests in `R` and construct confidence intervals for the mean (or difference in means). For further details, you may type `?t.test` or `help(t.test)`. The arguments for this function are as follows:
+
+- `x`, a **numeric vector** of data values
+- `mu`, a number indicating the true value of the mean 
+- `alternative`, specifying the alternative hypothesis. It must be either `"two.sided"`, `"greater"`, or `"less"`. 
+- `conf.level`, specifying the confidence level of the confidence interval.
+
+**Example**: Suppose we want to test the null hypothesis that the mean BMi among all patients was 25 vs. the alternative hypothesis that the mean BMI among all patients was not equal to 25. Pay attention to the use of `pull()`, which will extract the data as a vector:
+
+```{r}
+bmis <- licorice %>% 
+  select(preOp_calcBMI) %>% 
+  pull()
+
+t.test(bmis, mu = 25, 
+       alternative = "two.sided", 
+       conf.level = 0.95)
+```
+
+Note that the output displays the t-statistic, the degrees of freedom, the p-value, the alternative hypothesis tested, the 95% confidence interval, and the sample mean (wow, that's a lot!).
+
+### Two sample t-tests
+
+If you are performing a two-sample t-test, there are some other additional arguments:
+
+- `y`, a **numeric vector** of data values (placed after `x`)
+- `paired`, a logical being either `TRUE` or `FALSE` indicating whether you want a paired t-test, and
+- `var.equal`, a logical being either `TRUE` or `FALSE` indicating whether you assume the variance is the same in both groups (this affects the degrees of freedom used in the test)
+
+**Example**: Suppose we want to test the null hypothesis that the mean BMI among men was less than or equal to the mean BMI among women vs. the alternative hypothesis that the mean BMI among men was more than BMI among women:
+
+```{r}
+m_bmis <- licorice %>% 
+  filter(preOp_gender == 0) %>% 
+  select(preOp_calcBMI) %>% 
+  pull()
+
+f_bmis <- licorice %>% 
+  filter(preOp_gender == 1) %>% 
+  select(preOp_calcBMI) %>% 
+  pull()
+
+t.test(m_bmis, f_bmis, mu = 0, 
+       alternative = "greater", 
+       paired = FALSE, 
+       var.equal = FALSE,
+       conf.level = 0.95)
+```
+
+Note that we can also use the following **formula syntax**, which will give us equivalent results:
+
+```{r}
+t.test(licorice$preOp_calcBMI ~ licorice$preOp_gender, mu = 0,
+       alternative = "greater",
+       paired = FALSE,
+       var.equal = FALSE,
+       conf.level = 0.95)
+```
+
+where the `$` means that we are taking a specific variable from a dataset of interest. 
+
+# Exercises
+
+1. **0 points** Make sure your GitHub repository for this assignment has at least three commits, each with a meaningful commit message. Failure to do so may result in up to 5 points taken off the assignment.
+
+The two-sample Kolmogorov-Smirnov test can be used to test whether two samples have different underlying probability distributions by looking at differences in their empirical distribution functions (eCDFs). The null and alternative hypotheses are given by 
+
+$H_0$: both samples come from a population with the same distribution (had the same eCDFs), vs.
+$H_1$: the two samples come from populations with different distributions (had different eCDFs).
+
+If the difference in the two eCDFs is "large enough," then we reject the null hypothesis in favor of the alternative. 
+
+Suppose we conducted a two-sample Kolmogorov-Smirnov test at the $\alpha$ = 0.05 level, and obtained a p-value of 0.071.
+
+**In Exercises 2 - 8, don’t worry about the specifics of the Kolmogorov-Smirnov test.** Only use what is provided above, and assume that required assumptions are satisfied.
+
+2. **3 points** TRUE/FALSE: The probability of finding a significant difference in eCDFs if we were to independently repeat the study would be less than 0.05. If false, explain why.
+3. **3 points** TRUE/FALSE: The probability is greater than 0.05 that a difference in eCDFs this large or larger could occur by chance alone, if there truly is no difference in eCDFs. If false, explain why.
+4. **3 points** TRUE/FALSE: The probability that we have made the correct decision is greater than 0.95. If false, explain why.
+5. **3 points** TRUE/FALSE: The probability that the two samples come from a population with the same distribution is 0.071. If false, explain why.
+6. **3 points** TRUE/FALSE: Finding a very large p-value from the Kolmogorov-Smirnov test would give us strong evidence that the two samples come from a population with the same distribution. If false, explain why.
+7. **3 points** TRUE/FALSE: If we instead found a p-value smaller than our pre-specified $\alpha$, then there would be enough evidence for us to conclude that the two samples have different underlying distributions. If false, explain why.
+8. **3 points** TRUE/FALSE: Assuming that there truly is no difference in eCDFs between the two treatment groups, there is a 6.1% chance that we have made a type I error. If false, explain why.
+
+Questions 9 - 12 use the `licorice` dataset as refered in the brief tutorial above. 
+
+9. **7 points** Among patients who received the placebo sugar solution, test the hypothesis that the mean throat pain score 30 minutes after surgery was equal to 1. Formally specify the significance level (alpha cut-off), the hypotheses of interest, the reference distribution, the test statistic, and the p-value. What is your conclusion? Finally, briefly state your findings in language accessible to non-statisticians. 
+10. **11 points** Now compare the two groups; assess the hypothesis that the mean throat pain score 30 minutes after surgery was different between the two treatment groups. Formally specify the significance level (alpha cut-off), the hypotheses of interest, the reference distribution, the test statistic, and the p-value. What is your conclusion? Finally, briefly state your findings in language accessible to non-statisticians. **Repeat this exercise, this time comparing mean throat pain score 4 hours after surgery.**
+11. **4 points** Calculate a 99% confidence interval for the difference in mean pain scores 4 hours after surgery between the two treatment groups.
+12. **7 points** Based on your analyses, do you think that licorice gargle prior to surgery is effective in reducing post-intubation sore throat? Explain your answer, referencing any data or formal statistical tests as necessary.
+
+# Acknowledgements
+
+Today's dataset was made available by the Lerner Research Institute and Dr. Amy S. Nowacki of the Cleveland Clinic. This dataset is representative of a study by Ruetzler et al. (2013).

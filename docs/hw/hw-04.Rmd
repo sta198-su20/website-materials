@@ -1,0 +1,62 @@
+---
+title: HW 04
+author: STA 198 Spring 2020 (Jiang)
+date: "Due: Tuesday, June 16, 2020 at 11:59p"
+output:
+  rmarkdown::html_document:
+    css: "./sta199-hw.css"
+    toc: FALSE
+---
+
+The assignment repository is available here:
+
+[https://classroom.github.com/a/8dgA8ONC](https://classroom.github.com/a/8dgA8ONC)
+
+**Note:** As a reminder, $\mu$ and *variance* $\sigma^2$ as the arguments for the parameters in the normal distribution. For instance, a random variable X $\sim$ N(2, 25) would have mean $\mu$ = 2 and variance $\sigma^2$ = 25 (such that $\sigma$, the standard deviation, is 5). 
+
+The time between infection to the first symptoms of many infectious disease has a log-normal distribution (Kondo 1977); this means that the **log** of the incubation period, known as the *log-incubation period*, has a normal distribution.
+
+Suppose that the log-incubation period for an infectious viral upper respiratory infection is normally distributed with mean 2 and standard deviation 1.5, and let X be the random variable that corresponds to the log-incubation period for a random patient infected with this virus.
+
+**For the purposes of this homework, suppose all samples and results are calculated from independent draws from the appropriate underlying distribution.**
+
+**Assume all confidence intervals are symmetric two-sided intervals unless otherwise indicated.**
+
+1. **0 points** Make sure your GitHub repository for this assignment has at least three commits, each with a meaningful commit message. Failure to do so may result in up to 5 points taken off the assignment.
+2. **4 points** Rank the following events from being the most likely to occur to being the least likely to occur:
+  - (A)...a sample of 10 patients has an average log-incubation period of 1.5 days or shorter
+  - (B)...a sample of 25 patients has an average log-incubation period of 3 days or longer
+  - (C)...a sample of 10 patients has an average log-incubation period between 1 and 4 days
+  - (D)...a sample of 25 patients has an average log-incubation period less than 2 days
+
+3. **3 points** Suppose we take a random sample of size 2 from the distribution for X. The probability that the mean log-incubation period for these patients is longer than 3 days is:
+4. **3 points** Suppose we take a random sample of size 5 from the distribution for X. The probability that the mean log-incubation period for these patients is longer than 3 days is:
+5. **3 points** Suppose we take a random sample of size 10 from the distribution for X. The probability that the mean log-incubation period for these patients is longer than 3 days is:
+6. **4 points** Questions 3-5 all ask about the probability that average values from some sample are 1 day longer than the mean. Are these probabilities the same or different? Provide a detailed rationale explaining why this is the case.
+7. **4 points** When calculating the confidence interval for a population mean under the following conditions, does the margin of error get wider, narrower, or stay the same width? If we do not know for certain, say so.
+  - (A)...sample size same, variability increases, confidence level same
+  - (B)...sample size decreases, variability increases, confidence level increases
+  - (C)...sample size increases, variability same, confidence level same
+  - (D)...sample size same, variability same, confidence level increases  
+
+8. **6 points** Suppose we calculate a 95% confidence interval for the mean using a sample of size n = 40 from the distribution for X. Suppose we also calculate a confidence interval for the mean using a sample of size n = 10. For what confidence levels would the width of the interval using n = 10 be narrower than the one using n = 40?
+
+Researchers calculated a 98% confidence interval for the mean log-incubation period for a group of patients and found it to be (1.44, 2.78). In calculating this interval, they used the known population standard deviation from the underlying distribution for log-incubation period.
+
+9. **3 points** What was their sample average? 
+10. **3 points** How many samples did they use to arrive at this interval?
+11. **3 points** Explain why the statement "the probability is 0.98 that the true population mean lies between 1.44 and 2.78 log-days is *incorrect*.
+12. **3 points** Suppose we took a very large number of samples of size n (where n is the answer from Exercise 8) and calculated 98% CIs for the mean each time using these samples (using the known population standard deviation). Which of the following statements is (are) correct?
+  - (A)...Approximately 98% of them would have the same width as the one calculated originally.
+  - (B)...Approximately 98% of them would contain a value between 1.44 and 2.78.
+  - (C)...Approximately 98% of them would contain the sample mean.
+  - (D)...Approximately 98% of them would contain the population mean.
+  
+13. **4 points** Calculate a *one-sided* 98% confidence interval for this data that bounds the mean from below, using the sample mean and sample size calculated from Exercises 9 and 10, respectively. That is, your confidence interval should take on the form ([lower limit], $\infty$).
+14. **4 points** In each of the following scenarios, suppose a random sample of size n has been taken and we are constructing a confidence interval for the population mean using the sample mean. Provide the total width of the 95% confidence interval. If we don't have the tools to construct this interval, say so.
+- (A)...95% CI when $\sigma^2$ is known to be 6, n = 41, and the underlying distribution is non-normal
+- (B)...95% CI when $\sigma^2$ is known to be 6, n = 16, and the underlying distribution is normal
+- (C)...95% CI when $\sigma^2$ is unknown, but estimated to be 6, n = 12, and the underlying distribution is normal
+- (D)...95% CI when $\sigma^2$ is unknown, but estimated to be 6, n = 33, and the underlying distribution is non-normal
+
+15. **3 points** For the same sample size and confidence level, would a confidence interval for the mean using a t distribution be wider, narrower, or the same width as one calculated using a normal distribution? Explain your answer.

@@ -1,0 +1,304 @@
+---
+title: "Lab 01"
+author: "STA 198 Summer 2020 (Jiang)"
+output:
+  rmarkdown::html_document:
+    css: "./sta198-labs.css"
+    toc: TRUE
+    toc_float: TRUE
+---
+<br>
+
+Today's lab will introduce `ggplot2` as a visualization package to make 
+professional-quality graphics. 
+
+This assignment **will** be graded for credit.
+You must upload the knitted .pdf document corresponding to your repository to
+Gradescope by 11:59pm, US Eastern Time, on May 26 in order to receive credit. 
+Part of your lab grade will depend on having a well-structured repository (more
+instructions in Exercise 1, below). As a reminder, no late work is accepted.
+
+# Workflow
+
+Remember the following steps in the workflow. If you have any questions or need
+a refresher on how to perform them, refer back to Lab B0 or ask a lab TA or Yue.
+
+- Clone an existing assignment repository into a personal repository.
+- Create a new RStudio Cloud Project based on your cloned repository in the 
+class workspace.
+- Perform your data analysis in RStudio Cloud in an R Markdown document 
+(staging, committing, and pushing changes to your repository as necessary).
+- Knit your final product into a .pdf document, and push one final time to your
+repository.
+- Upload this .pdf document to Gradescope.
+
+Click on the following link to clone the lab directory: 
+
+[https://classroom.github.com/a/tL1rmUMs](https://classroom.github.com/a/tL1rmUMs)
+
+# The Grammar of Graphics
+
+As a reminder from lecture, The Grammar of Graphics was a concept introduced by
+Leland Wilkinson in his book (appropriately titled *The Grammar of Graphics*).
+This formal grammar was used to define the components of a data visualization, 
+and was adapted into the `tidyverse` in R. 
+
+One of the biggest advantages of ``ggplot2`` as implemented in R is that it has
+a very consistent, readable syntax for use in coding. Additionally, since it is
+based on a formal grammar, the code itself is very *modular*, with each line
+corresponding to a specific element of the intended graph. However, note that
+it is still up to the user to decide which graph is appropriate for the 
+situation. It is entirely possible to create non-sensical graphs (such as the
+line plot connecting states' obesity rates in alphabetical order).
+
+In the guided portion of today's lab, we will be reproducing the plots from the
+lecture slides. The graded component will have you creating your own data
+visualizations.
+
+# Guided activity
+
+Let's go through some of the layers in the Grammar of Graphics, adding them one
+at a time until we achieve a final result. Follow along with the following 
+steps, making sure to note what changes upon the addition of each new layer.
+
+## Before we start
+
+**Remember that the Console is separate from the knitting environment.** The
+code you type/run in the Console (this includes the green play button) does not
+affect the knitted document, and vice-versa. This often comes into play when
+loading libraries or defining datasets/variables.
+
+## Loading libraries and data
+
+The `ggplot2` package is part of the `tidyverse`, and is automatically loaded
+when the `tidyverse` package is loaded. Since I've already installed it on the
+back-end, all that you need to do is load the library in order to use the
+functions in it:
+
+```{r packages, echo = TRUE, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+We'll be using the `cdc` dataset to recreate the plot on Slide 17 in Lecture 02 step-by-step. Import the data with the following code:
+
+```{r cdcdata, echo = TRUE, warning=FALSE, message=FALSE}
+cdc <- read_csv("data/cdc.csv")
+```
+
+Note the use of the `<-` operator. This is the **assignment operator**, and is
+used to assign the value of the right side to the left side. That is, we are
+creating an object `cdc` by reading-in the dataset `cdc_cleaned.csv` in the 
+`data` folder using the `read_csv` function, which is part of the tidyverse 
+(there is a base R equivalent, but `read_csv` is preferred...feel free to ask
+me why!).
+
+We can take a look at the dataset by using either of the following two code
+options. Using `View()` opens a browsing tab in the top left-window, and using
+`glimpse()` provides a brief summary in the output area. The `glimpse()` 
+function tells us how many observations and variables there are in the dataset,
+the data types of the variable (don't worry about this now), and it also 
+provides the first few observations for each variable so you can get a feel for
+the dataset.
+
+```{r data-stuff, eval = F}
+View(cdc)
+glimpse(cdc)
+```
+
+## Creating our scatterplot
+
+Run the following code step-by-step and see what changes each time. When 
+creating `ggplot2` visualizations, a best practice is to separate each new layer
+on its **own separate line**.
+
+Start by 
+specifying the data (note that nothing should be plotted):
+
+```{r, eval = F}
+ggplot(data = cdc)
+```
+
+Next, **map** variables in the dataset to various **aesthetics**. Let's map  
+variables in our dataset onto the x- and y-axes:
+
+```{r, eval = F}
+ggplot(data = cdc, mapping = aes(x = exercise, y = obesity))
+```
+
+You might notice that nothing gets plotted -- this is because we haven't yet
+specified what type of plot to create. Let's go ahead and specify a **geometry**
+corresponding to a scatterplot. This is done by adding a new layer (literally
+add it with a + sign on a new line):
+
+```{r, eval = F}
+ggplot(data = cdc, mapping = aes(x = exercise, y = obesity)) +
+  geom_point()
+```
+
+We can change global options on how the plot is formed inside the geometry. For
+instance, compare the previous plot to the following one:
+
+```{r, eval = F}
+ggplot(data = cdc, mapping = aes(x = exercise, y = obesity)) +
+  geom_point(size = 3, color = "skyblue")
+```
+
+What changed? Now, instead of making all points skyblue, let's color code them
+by mapping the HDI variable onto the color aesthetic:
+
+```{r, eval = F}
+ggplot(data = cdc, mapping = aes(x = exercise, y = obesity, color = hdi)) +
+  geom_point()
+```
+
+Note that if we want the colors of the points to depend on the value of another
+variable, we must specify that as an aesthetic mapping. If we want ot make a
+global visual change, we can specify that in the geometry.
+
+Now, let's add some labels and a title in a new layer. Note that a caption is 
+automatically added:
+
+```{r, eval = F}
+ggplot(data = cdc, mapping = aes(x = exercise, y = obesity, color = hdi)) +
+  geom_point() +
+  labs(title = "Adequate aerobic activity associated with lower obesity", 
+       x = "Adequate aerobic activity (%)", 
+       y = "Obesity (%)")
+```
+
+This is in fact the plot presented on Slide 17. To create the plot on Slide 18
+where we have **facetted** the points by HDI instead of color coding, we can
+add in a faceting layer, where we facet by HDI instead of mapping it to the
+color aesthetic:
+
+```{r, eval = F}
+ggplot(data = cdc, mapping = aes(x = exercise, y = obesity)) +
+  geom_point() +
+  facet_grid(.~hdi) + 
+  labs(title = "Adequate aerobic activity associated with lower obesity", 
+       x = "Adequate aerobic activity (%)", 
+       y = "Obesity (%)")
+```
+
+We can also change the direction of faceting. For instance, try the following
+code and compare it to your previous plot. Which is more effective in telling
+a story, and why?
+
+```{r, eval = F}
+ggplot(data = cdc, mapping = aes(x = exercise, y = obesity)) +
+  geom_point() +
+  facet_grid(hdi~.) + 
+  labs(title = "Adequate aerobic activity associated with lower obesity", 
+       x = "Adequate aerobic activity (%)", 
+       y = "Obesity (%)")
+```
+
+Note that there are a lot of other options and layers we can include, but this
+is just a basic introduction. 
+
+## The other plots from class...
+
+This section has the other basic plots introduced in Lecture 02. Take the time
+to reproduce them and see what each line of code is doing:
+
+```{r, eval = F}
+ggplot(data = cdc, mapping = aes(x = region)) + 
+  geom_bar(fill = "steelblue") + 
+  labs(title = "The South has the largest number of states", 
+       x = "Region", 
+       y = "Count")
+```
+
+```{r, eval = F}
+# Note: if you don't want to separate by HDI, get rid of the x mapping
+ggplot(data = cdc, mapping = aes(x = hdi, y = obesity)) + 
+  geom_boxplot() + 
+  labs(title = "Lower HDIs associated with higher obesity %", 
+       x = "HDI", 
+       y = "Adult Obesity (%)")
+```
+
+```{r, eval = F}
+ggplot(data = dat, mapping = aes(x = obesity)) +
+  geom_histogram(color = "darkblue", fill = "lightblue", binwidth = 2)+ 
+  labs(title = "Most states have approx. 30% adult obesity", 
+       x = "Adult Obesity (%)", 
+       y = "Count")
+```
+
+```{r, eval = F}
+# Note: I've taken only the first four rows of the cdc dataset...more details
+#       regarding data manipulation will be provided in Lab 02. 
+ggplot(data = cdc[1:4,], mapping = aes(x = state, y = obesity, group = 1)) +
+  geom_line() + 
+  geom_point() + 
+  labs(title = "Obesity by State", 
+       x = "State", 
+       y = "Adult Obesity (%)")
+```
+
+# Additional plotting resources
+
+RStudio has written a great ``ggplot2`` cheatsheet linked [here](https://github.com/rstudio/cheatsheets/raw/master/data-visualization-2.1.pdf).
+It's definitely a lot to take in, but it has virtually everything you'd ever 
+need in one page. Selva Prabhakaran wrote an in-depth, three-part tutorial 
+available on his website [here](http://r-statistics.co/Complete-Ggplot2-Tutorial-Part1-With-R-Code.html),
+and I definitely encourage you to take a look in your free time. The third part
+of his tutorial lists 50 visualization examples of all types, as well as the 
+code needed to create them.
+
+# Your turn
+
+Parkinson's disease is a progressive, incurable neurological disease that leads 
+to motor dysfunction and potential cognitive decline, dementia, and reduced life 
+expectancy. It is important to diagnose Parkinson's disease early in order to 
+start effective disease management.
+
+Researchers at Oxford and the National Center for Voice and Speech in Denver 
+made voice measurements on a number of individuals to see whether they could 
+diagnose Parkinson's disease based on acoustic signals in peoples' voices using 
+spectral analysis. They made a number of measurements among healthy and 
+Parkinson's disease patients. 
+
+The dataset in your repository has been adapted from Little et al., Biomed. Eng. 
+Online (2007). It is composed of diferent voice measurements, with each 
+observation corresponding to a voice recording from a participant.
+
+Of interest are the following variables:
+
+- `avg.f.q` average vocal fundamental frequency divided into groups: 1 (low), 2 (medium), 3 (high)
+- `jitter` jitter (in %), a measure of fundamental frequency variation
+- `shimmer` shimmer (in dB), a measure of amplitude variation
+- `hnr` the ratio of tonal to noise components in the sound clip
+- `status` disease status
+
+**Remember to give all graphs effective titles and axis labels.**
+
+1. **6 points** Make sure your GitHub repository for this assignment has at 
+least three commits, each with a meaningful commit message.
+
+2. **4 points** Load the `tidyverse` into R, and then read the `parkinsons.csv` 
+file using the `read_csv()` function (giving your dataset a meaningful name). 
+How many observations and variables are in this dataset?
+
+3. **10 points** Provide a graph that visualizes the average vocal fundamental 
+frequency of these voice clips.
+
+4. **15 points** Provide a graph that visualizes the amplitude variation of 
+these voice clips, separated by disease status. Describe the distributions; what 
+do you notice?
+
+5. **15 points** Provide a graph that visualizes the relationship between 
+amplitude variation and fundamental frequency variation in these voice clips, 
+and color-code the points by disease status. Provide a legend for the color 
+along the bottom of your plot. Describe this relationship; what do you notice?
+<br><br>**Hint**: use a `theme()` layer to control where the legend is 
+positioned. If you want to look at the help file or documentation for any R
+function, you can use `help()` or `?`. For example, if you wanted to look at the 
+documentation for the `theme()` function, type in `help(theme)` or `?theme` into 
+the Console. 
+
+You must turn in a knitted .pdf file to Gradescope from a markdown file based on 
+the template in your cloned repository by 11:59p US Eastern on May 26th in order 
+to receive credit. Be sure to "associate" questions appropriately on Gradescope. 
+As a reminder, late work is not accepted.

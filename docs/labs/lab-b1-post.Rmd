@@ -1,0 +1,287 @@
+---
+title: Lab B1
+author: STA 102 Spring 2020 (Jiang)
+date: "Bonus lab: Web scraping"
+output:
+  rmarkdown::html_document:
+    css: "sta198-labs.css"
+    toc: TRUE
+    toc_float: TRUE
+---
+<br><br>
+
+This lab will introduce web scraping of HTML web pages using CSS selector 
+gadgets in R. This will not be assigned for a grade, but is rather meant to 
+serve as a resource for your data science career (and may be helpful on your
+final project!). The solutions for the exercises will be released on Wednesday,
+July 15.
+
+# HTML
+
+HTML stands for **h**yper**t**ext **m**arkup **l**anguage, and describes the 
+structure of a web page. Your browser interprets this structure and contents and 
+displays the results. The basic building blocks include elements, tags, and 
+attributes:
+    - an element is a component of an HTML document
+    - elements contain tags (start and end tag)
+    - attributes provide additional information about HTML elements
+
+```{r invite1, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/html-structure.png")
+```
+
+A simple HTML document may look like the following:
+
+```html
+<html>
+<head>
+<title>Web Scraping</title>
+</head>
+<body>
+
+<h1>Using rvest</h1>
+<p>To get started...</p>
+
+</body>
+</html>
+```
+
+<br/><br/>
+
+We can visualize this in a tree-like structure.
+
+```{r, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/html-tree.png")
+```
+
+If we have access to an HTML document, we can use the `rvest` package by 
+Hadley Wickham to extract information. It makes basic processing and 
+manipulation of HTML documents easy.
+
+```{r, message = F, warning = F}
+library(tidyverse)
+library(rvest)
+```
+
+Some core functions are as follows:
+
+| Function            | Description                                                       |
+|---------------------|-------------------------------------------------------------------|
+| `xml2::read_html()` | read HTML from a character string or URL                          |
+| `html_nodes()`      | select specified pieces from the HTML document using CSS selectors|
+| `html_table()`      | parse an HTML table into a data frame                             |
+| `html_text()`       | extract content                                                   |
+| `html_name()`       | extract tag names                                                 |
+| `html_attrs()`      | extract all attributes and values                                 |
+| `html_attr()`       | extract value for a specified attribute's name                    |
+
+# HTML in R
+
+Let's create a simple HTML document as a string to demonstrate some of 
+these functions.
+
+```{r}
+simple_html <- "<html>
+<head>
+<title>Web Scraping</title>
+</head>
+<body>
+<h1>Using rvest</h1>
+<p>To get started...</p>
+</body>
+</html>"
+```
+
+First, let's read it in:
+
+```{r}
+html_simple <- read_html(simple_html)
+```
+
+What does it look like?
+
+```{r}
+html_simple
+```
+
+Let's now extract the component corresponding to `Using rvest`, and the actual
+text and name of the tag:
+
+```{r}
+h1_nodes <- html_nodes(html_simple, css = "h1")
+h1_nodes
+
+h1_nodes %>% 
+  html_text()
+
+h1_nodes %>% 
+  html_name()
+```
+
+# Scaling up
+
+Most HTML documents are not as simple as what we just examined. There may be
+tables, hundreds of links, paragraphs of text, and more. Naturally, you might
+wonder:
+- How do we handle larger HTML documents? 
+- How do we know what to provide to `css` in function `html_nodes()` when 
+we attempt to subset the HTML document?
+- Are these functions in `rvest` vectorized? For instance, are we able to get 
+all the content in the `td` tags on the slide that follows?
+
+In Chrome, you can view the HTML document associated with a web page by going
+to `View > Developer > View Source`.
+
+```html
+<html lang=en>
+<head>
+   <title>Rays Notebook: Open Water Swims 2020 — The Whole Shebang</title>
+</head>
+<body>
+<main class=schedule>
+<h1>The Whole Shebang</h1>
+
+<p>This schedule lists every swim in the database. 383 events.</p>
+
+<table class=schedule>
+<thead><tr><th>Date</th><th>Location</th><th>Name</th><th>Distance</th><th>More</th></tr></thead>
+<tbody>
+
+<tr id=January>
+<td class=date>Jan 12, Sun</td>
+<td class=where>
+   <a class=mapq href="http://www.google.com/maps/?q=27.865501,-82.631997">Petersburg, FL</a>
+   <span class=more>
+   Gandy Beach, Gandy Blvd N St, Petersburg, FL
+   </span>
+</td>
+<td class=name><a href="http://tampabayfrogman.com/">Tampa Bay Frogman</a></td>
+<td class=distance>5 km</td>
+<td class=more><span class=time>7:15 AM</span>, Old Tampa Bay.</td>
+</tr>
+</body>
+</html>
+```
+
+This is a snippet from HTML document associated with the website
+[here](https://raysnotebook.info/ows/schedules/The%20Whole%20Shebang.html).
+
+# CSS selectors
+
+CSS stands for **c**ascading **s**tyle **s**heets, and describes how HTML elements are to be displayed on screen, paper, or in other media. CSS can be added to HTML elements in 3 ways:
+    - Inline: by using the style attribute in HTML elements
+    - Internal: by using a `<style>` element in the `<head>` section
+    - External: by using an external CSS file
+
+To extract components out of HTML documents use `html_nodes()` and CSS selectors.
+In CSS, selectors are patterns used to select elements you want to style. We can 
+determine the necessary CSS selectors we need via the point-and-click
+tool [selector gadget](https://selectorgadget.com/). More on this in a moment.
+
+Examples of CSS selectors are given below:
+
+| Selector          | Example         | `html_nodes()` `css` value           | Description; Select all                         |
+|-------------------|-----------------|--------------------------------------|-------------------------------------------------|
+| element           | `p`             | `html_nodes(x, css = "p")`           | &lt;p&gt; elements                              |
+| element element   | `div p`         | `html_nodes(x, css = "div p")`       | &lt;p&gt; elements inside a &lt;div&gt; element |
+| .class            | `.title`        | `html_nodes(x, css = ".title")`      | elements with class="title"                     |
+| #id               | `#name`         | `html_nodes(x, css = "#name")`       | elements with id="name"                         |
+| [attribute]       | `[class]`       | `html_nodes(x, css = "[class]")`     | elements with a class attribute                 |
+| [attribute=value] | `[href='www']`  | `html_nodes(x, css = "[href='www']")`| elements with class="title"                     |
+
+For more CSS selector references click [here](https://www.w3schools.com/cssref/css_selectors.asp).
+
+# SelectorGadget example
+
+[SelectorGadget](https://selectorgadget.com/) makes identifying the CSS 
+selector you need by easily clicking on items on a webpage. Check out the [video here](https://player.vimeo.com/video/52055686) for more details.
+
+Let's go to http://books.toscrape.com/catalogue/page-1.html and scrape the first 
+page of data on books with regard to their title, price, and star rating. 
+We'll organize our results in a neatly formatted tibble similar to below.
+
+```{r eval=FALSE}
+# A tibble: 20 x 3
+   title                                             price rating
+   <chr>                                             <chr> <chr> 
+ 1 A Light in the Attic                              £51.… Three 
+ 2 Tipping the Velvet                                £53.… One   
+ 3 Soumission                                        £50.… One   
+ 4 Sharp Objects                                     £47.… Four  
+ 5 Sapiens: A Brief History of Humankind             £54.… Five  
+ 6 The Requiem Red                                   £22.… One   
+ 7 The Dirty Little Secrets of Getting Your Dream J… £33.… Four  
+ 8 The Coming Woman: A Novel Based on the Life of t… £17.… Three 
+ 9 The Boys in the Boat: Nine Americans and Their E… £22.… Four  
+10 The Black Maria                                   £52.… One   
+# … with 10 more rows
+```
+
+**The pre-recorded material will walk through this example in detail**.
+
+# Overall workflow
+
+The overall workflow for webscraping is as follows:
+
+- Understand the website's hierarchy and what information you need.
+- Read and save the HTML document from the URL.
+    ```{r eval=FALSE}
+    html_obj <- read_html("www.website-to-scrape.com")
+    ```
+- Use SelectorGadget to identify relevant CSS selectors.
+- Subset the resulting html document using CSS selectors.
+    ```{r eval=FALSE}
+    html_obj %>% 
+      html_nodes(css = "specified_css_selector")
+    ```
+- Further extract attributes, text, or tags by adding another layer with
+    ```{r eval=FALSE}
+    html_obj %>% 
+      html_nodes(css = "specified_css_selector") %>% 
+      html_*()
+    ```
+   where `*` is `text`, `attr`, `attrs`, `name`, or `table`.
+
+```{r, eval = T, echo = F}
+page <- read_html("http://www.imdb.com/chart/top")
+titles <- page %>%
+  html_nodes(".titleColumn a") %>%
+  html_text()
+years <- page %>%
+  html_nodes(".secondaryInfo") %>%
+  html_text() 
+scores <- page %>%
+  html_nodes(".imdbRating") %>%
+  html_text() %>%
+  as.numeric()
+imdb_top_250 <- tibble(
+  title = titles, 
+  year = years, 
+  score = scores
+  )  
+```
+
+# Your turn!
+
+Access the 250 top-rated movies according to their IMDb ratings, available here:
+[https://www.imdb.com/chart/top](https://www.imdb.com/chart/top). 
+
+Create a table which provides the titles, year, and IMDb scores for these 
+movies. Your output should look similar to:
+
+```{r, echo = F}
+imdb_top_250
+```
+
+# References
+
+- Easily Harvest (Scrape) Web Pages. (2020). Rvest.tidyverse.org. Retrieved 
+   from https://rvest.tidyverse.org/
+
+- W3Schools Online Web Tutorials. (2020). W3schools.com. Retrieved 
+   from https://www.w3schools.com/
+
+- SelectorGadget: point and click CSS selectors. (2020). Selectorgadget.com. 
+   Retrieved from https://selectorgadget.com/
+
+

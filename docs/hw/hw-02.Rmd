@@ -1,0 +1,51 @@
+---
+title: HW 02
+author: STA 198 Summer 2020 (Jiang)
+date: "Due: Tuesday, June 02, 2020 at 11:59p"
+output:
+  rmarkdown::html_document:
+    css: "./sta199-hw.css"
+    toc: FALSE
+---
+
+Click on the following link to clone the assignment repository into your own private repository, and then create an RStudio Cloud project in the class workspace named "HW-02" using this private repo: 
+
+[https://classroom.github.com/a/ODaDVZDF](https://classroom.github.com/a/ODaDVZDF)
+
+**Reminder**: You must turn in a knitted .pdf file to Gradescope by 11:59p US Eastern on June 2nd in order to receive credit. Late work is not accepted. For all calculations, you must **show your work** and provide a numerical answer to get full credit (remember that you can use R’s calculator capability; be careful with parentheses).
+
+1. **4 points** Make sure your GitHub repository for this assignment has at least three commits, each with a meaningful commit message.
+
+Vegetables play an essential role in human nutrition, supplying dietary fiber, vitamins, and minerals while being low in fat and calories. Diets low in vegetables are at increased risk for cancer, heart attack, stroke, and other chronic ailments (seriously, eat your vegetables). 
+
+Suppose that 60% of Americans eat vegetables every day, 30% of Americans are college graduates, and 90% of American college graduates eat vegetables every day.
+
+2. **2 points** What is the probability that a randomly selected American is a college graduate and eats vegetables every day?
+3. **2 points** What is the probability that a randomly selected American is a college graduate and does not eat vegetables every day?
+4. **2 points** What is the probability that a randomly selected American is a college graduate or eats vegetables every day? 
+5. **4 points** What is the probability that a randomly selected American is not a college graduate and does not eat vegetables every day?
+6. **6 points** Given that a randomly selected American eats vegetables every day, what is the probability that they are a college graduate?
+7. **4 points** Among Americans, are being a college graduate and eating vegetables every day independent events? Explain, using the data at hand.
+
+Diabetes is a chronic disease where the body is unable to correctly process blood sugar and may lead to serious complications if not properly managed. Narayan, Boyle, and Thompson, et al. (*JAMA*, 2003) found the following lifetime risks of being diagnosed with diabetes:
+
+- Non-Hispanic White: 27%
+- Black or Hispanic: 43%
+- Other: 37%
+
+According to the US Census, the following is the approximate population breakdown in the US of the above categories:
+
+- Non-Hispanic White: 63%
+- Black or Hispanic: 29%
+- Other: 8% 
+
+8. **4 points** What is the probability that a randomly selected American is diagnosed with diabetes during their lifetime?
+9. **6 points** Suppose that a randomly selected American is diagnosed with diabetes during their lifetime. What is the probability that they are of Black or Hispanic origin? 
+
+The global coronavirus pandemic illustrates the need for accurate testing of COVID-19, as its extreme infectivity poses a significant public health threat. Due to the time-sensitive nature of the situation, the FDA has enacted emergency authorization of a number of serological tests for COVID-19. Full details of these tests may be found on its website [here](https://www.fda.gov/medical-devices/emergency-situations-medical-devices/eua-authorized-serology-test-performance).
+
+The Abbott Alinity test has an estimated sensitivity of 100% and specificity of 99%. A test developed at the Mount Sinai Hospital in New York has an estimated sensitivity of 92.5% and specificity of 100%.
+
+10. **6 points** Suppose the prevalence of COVID-19 in the general population is 2%. What are the positive predictive value and negative predictive values of the Abbott and Mount Sinai tests?
+11. **6 points** Now suppose the prevalence of COVID-19 in the general population is 8%. Repeat the same calculations as in Exercise 10.
+12. **4 points** In the context of COVID-19, would you prefer to have a test with perfect sensitivity and good specificity or would you rather have a test with perfect specificity and good sensitivity? Explain your answer. 

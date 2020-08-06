@@ -1,0 +1,230 @@
+---
+title: HW 06
+author: STA 198 Spring 2020 (Jiang)
+date: "Due: Tuesday, July 07, 2020 at 11:59p"
+output:
+  rmarkdown::html_document:
+    css: "./sta199-hw.css"
+    toc: FALSE
+---
+
+The assignment repository is available here:
+
+[https://classroom.github.com/a/ESmj_gnL](https://classroom.github.com/a/ESmj_gnL)
+
+This homework will introduce quite a bit of code -- we will learn how to perform ANOVA, tests of proportion, chi-square tests, and non-parametric tests in R. Before you begin the assignment, go through the guided portion below. 
+
+# Data
+
+We will once again be using the dataset from Reutzler et al. (2013), who performed an experiment examining the potential efficacy of licorice-based solution prior to intubation for surgery. As a reminder, sore throat was evaluated 30 minutes, 90 minutes, and 4 hours after conclusion of the surgery, evaluated using an 11-point Likert scale (0 = no pain, 10 = worst pain).
+
+The data are available in your assignment repository as a .csv file. We will be using more variables from the dataset than on HW 05. Relevant variables of interest are:
+
+- `preOp_gender`: Gender (0 = Male; 1 = Female)
+- `preOp_calcBMI`: Body mass index in kg/m$^2$
+- `treat`: Treatment given (0 = Sugar placebo; 1 = Licorice solution)
+- `preOp_asa`: American Society of Anesthesiologist (ASA) severity group (1 = healthy; 2 = mild systemic disease; 3 = severe systemic disease)
+- `preOp_smoking`: Smoking status (current smoker; past smoker; never smoked)
+- `pacu30min_throatPain`: Sore throat pain score 30 minutes after arrival in PACU (11-point scale: 0 = No pain; 10 = Worst pain)
+- `postOp4hour_throatPain`: Sore throat pain score 4 hours after surgery (11-point scale: 0 = No pain; 10 = worst pain)
+
+To suppress printed messages and warnings in your R Markdown document, you may use the options `message = F` and `warning = F` in your R chunk. That is, start R chunks with ` ```{r chunk-name, message = F, warning = F} `.
+
+```{r, message = F, warning = F}
+library(tidyverse)
+licorice <- read_csv("data/licorice.csv")
+```
+
+# ANOVA
+
+We can use the syntax `aov(outcome ~ group, data = _)` to perform an ANOVA, where `outcome` is the variable whose mean we are interested in, `group` is a categorical variable which has group memberships of each observation, and the dataset of interest is specified by the `data` argument. In order to get the ANOVA table and p-value, we need to summarize this object by using the `summary` function.
+
+**Example:** Suppose we wanted to create an ANOVA table comparing whether mean BMI varies by ASA severity group. We first create the ANOVA object and then summarize it. Refer to the following code:
+
+```{r}
+bmi_by_asa <- aov(preOp_calcBMI ~ preOp_asa, data = licorice)
+summary(bmi_by_asa)
+```
+
+Step-down t-tests would be performed using code you are already familiar with. Be careful about multiple testing considerations.
+
+# Tests of proportion
+
+For tests of proportion, we must manually specify how many "successes" and total observations there are in each group. To do so, it is helpful to create a contingency table of these variables using the `table` function in R. R makes
+
+### One-sample test
+
+For a one sample test of proportion, we use the syntax `prop.test(x = _, n = _, p = _, alternative = _, conf.level = _)` to perform the test using the normal approximation. In this code, `x` is the observed number of successes, `n` is the sample size, `p` is the *hypothesized* proportion, `alternative` specifies the alternative hypothesis (`"two.sided"`, `"greater"`, or `"less"`), and `conf.level` specifies the confidence level of the confidence interval. 
+
+Importantly, this will both perform a hypothesis test *and* create a confidence interval.
+
+**Example:** Suppose we want to see whether the proportion of males in the dataset was equal to 0.5. First, let's start with a contingency table for gender (remembering that 0 = male). In R, we can use the **dollar sign** to "choose" a variable from a dataset. For instance, if we wanted to create a table that counted the `preOp_gender` variable in the `licorice` dataset, we would use:
+
+```{r}
+table(licorice$preOp_gender)
+```
+
+We observe 142 males out of 235 total observations, and we want to test whether the true proportion is 0.5 using a two-sided test. We also want to construct a 95% two-sided confidence interval. We thus use:
+
+```{r}
+prop.test(x = 142, n = 235, p = 0.5, alternative = "two.sided", conf.level = 0.95)
+```
+
+**Note:** Instead of comparing to a normal distribution, in R, a chi-square test is
+performed (this is equivalent behind-the-scenes, but no need to worry about that). 
+This test also applies a so-called "continuity correction," which corrects for 
+the fact that we are observing discrete numbers while the true population 
+proportion is a continuous value from 0 to 1. Again, don't worry about it for 
+the purposes of STA 198.
+
+### Two-sample tests of proportion
+
+Again, we use the `prop.test` function, but our arguments are slightly different. Here, the syntax is `prop.test(x = _, n = _, alternative = _, conf.level = _)`, but `x` and `n` take on *vector* values based on counts for each group. Note that this test assumes that the null hypothesis is that the two proportions are equal, but you can specify either a one- or two-sided alternative. 
+  
+**Example:** Suppose we now want to see whether the proportion of patients receiving licorice solution vs. placebo was the same between male and female patients. We once again start by creating a contingency table to obtain the counts:
+
+```{r}
+table(licorice$preOp_gender, licorice$treat)
+```  
+  
+We see that of the 142 males, 69 received licorice; of the 93 females, 49 received licorice. **Be careful that you do not mix up the row and column variables.** In R, the first variable specified in the table denotes the rows, and the second variable denotes the columns. If it helps, you can try `mutate`ing  new variable that has more meaningful labels (such as "Male" or "Female") and then creating the table.
+
+To test the two-sided hypothesis that these two proportions are equal, we use the code:
+
+```{r}
+prop.test(x = c(69, 49), n = c(142, 93), alternative = "two.sided", conf.level = 0.95)
+```
+
+Note that this code also gives us the sample proportions for each group. Be careful you do not get `x` and `n` values confused -- we specify all counts and sample sizes "at once."
+
+# Chi-square test
+
+The chi-square test takes a **table** as its argument, which we have learned how to do earlier. 
+
+**Example:** Suppose we're interested in whether there is a relationship between gender and ASA status in the licorice dataset. We will perform a chi-square test on the contingency table comparing these two variables:
+
+```{r}
+chisq.test(table(licorice$preOp_gender, licorice$preOp_asa))
+```
+
+# Non-parametric tests
+
+We will focus on the signed-rank test, the rank sum test, and the Kruskal-Wallis 
+test. Both the signed-rank and rank sum test uses the function `wilcox.test()`. 
+Depending on whether the data are specified as paired or unpaired, the function will 
+perform either the signed-rank or rank sum test, respectively. Useful syntax 
+is below (some optional arguments have been omitted; if you're interested, you 
+can check the function documentation):
+
+```{r, eval = F}
+wilcox.test(x, y, alternative = _,
+            paired = _,
+            conf.level = _)
+```
+
+- `x` and `y` are numeric vectors of data values,
+- `alternative` can be specified as being `"two.sided"`, `"less"`, or 
+`"greater"` (you must include the quotation marks),
+- `paired` can be either `TRUE` or `FALSE`, depending on whether you want the 
+signed-rank test or the rank sum test, respectively, and
+- `conf.level` gives the confidence level expressed as a decimal.
+
+Note that this syntax requires input of two numeric vectors of data values. Much 
+like the `t.test()` syntax, we can input a formula instead. For instance, if 
+there is a variable `x` which tells us which one of two groups each observation 
+`y` is in, we may use the following syntax:
+
+```{r, eval = F}
+wilcox.test(y ~ x, data = _, 
+            alternative = _, etc....)
+```
+
+**Example:** Suppose we want to perform a rank sum test on whether the median 
+baseline BMI in the licorice study is different between the licorice and sugar 
+water groups. We might use the following code to do so, noting that a rank sum
+test is the non-parametric counterpart to the independent-samples t-test:
+
+```{r, eval = F}
+wilcox.test(preOp_calcBMI ~ treat, data = licorice,
+            alternative = "two.sided",
+            paired = FALSE,
+            conf.level = 0.95)
+```
+
+The Kruskal-Wallis test uses the formula syntax only, and has syntax similar to
+that for the ANOVA, given by:
+
+```{r, eval = F}
+kruskal.test(y ~ x, data = _)
+```
+
+where `y` is the variable corresponding to the observation of interest, `x` is 
+the variable specifying the groups, and `data` tells us what dataset is being 
+used. However, unlike the code for ANOVA, there is no need to create an object
+and then summarize it; we can directly use the `kruskal.test()` function to 
+obtain our results.
+
+**Example:** Using the same example from earlier comparing whether *median* BMI 
+varies by ASA severity group instead of means:
+
+```{r}
+kruskal.test(preOp_calcBMI ~ preOp_asa, data = licorice)
+```
+
+Step-down rank sum tests would be performed using the `wilcox.test()` function
+introduced above. Be careful about multiple testing considerations.
+
+# Exercises
+
+We will be using the `licorice` dataset. As a reminder, some variables of 
+interest are:
+
+- `preOp_gender`: Gender (0 = Male; 1 = Female)
+- `preOp_calcBMI`: Body mass index in kg/m$^2$
+- `treat`: Treatment given (0 = Sugar placebo; 1 = Licorice solution)
+- `preOp_asa`: American Society of Anesthesiologist (ASA) severity group (1 = healthy; 2 = mild systemic disease; 3 = severe systemic disease)
+- `preOp_smoking`: Smoking status (current smoker; past smoker; never smoked)
+- `pacu30min_throatPain`: Sore throat pain score 30 minutes after arrival in PACU (11-point scale: 0 = No pain; 10 = Worst pain)
+- `postOp4hour_throatPain`: Sore throat pain score 4 hours after surgery (11-point scale: 0 = No pain; 10 = worst pain)
+
+**Note**: To write $\mu_A$, type `$\mu_A$` into your markdown document 
+(including the dollar signs).
+
+1. **0 points** Make sure your GitHub repository for this assignment has at least three commits, each with a meaningful commit message. Failure to do so may result in up to 5 points taken off the assignment.
+2. **6 points** Suppose that researchers are interested in whether a patient's 
+smoking status is associated with differences in throat pain 30 minutes after 
+surgery. What hypothesis test would be most appropriate to answer this question? 
+Formally evaluate whether any assumptions for a parametric test are satisfied. 
+3. **8 points** Given your answer in Exercise 2, conduct the most appropriate 
+hypothesis test to evaluate the researchers' question, being sure to 
+specify the null and alternative hypotheses, your chosen significance level, 
+whether to reject the null hypothesis, and your conclusion in context. If you
+have selected a parametric test, also provide the distribution of the test
+statistic under the null hypothesis and the value of the test statistic itself.
+4. **8 points** Perform appropriate step-down tests to determine where the 
+differences in perceived throat pain 30 minutes after surgery are. If it is not 
+appropriate to perform step-down tests in this context, explain why.
+5. **8 points** If you chose a parametric test in Exercise 3, perform its *non*-
+parametric counterpart at the same significance level; if you chose a 
+non-parametric test in Exercise 3, perform its parametric counterpart. In doing
+so, specify the null and alternative hypotheses, your chosen significance level, 
+whether to reject the null hypothesis, and your conclusion in context. If you
+have selected a parametric test, also provide the distribution of the test
+statistic under the null hypothesis and the value of the test statistic itself.
+6. **8 points** According to the German census, approximately 25% of German
+adults *currently* smoke. Assess whether the patients enrolled in this
+study are consistent with this figure (remember that R performs a chi-square
+test to test for proportions; this is a more general framework than the Z-test 
+introduced during the course notes, but you will get the same conclusion either
+way).
+7. **4 points** Construct a 95% confidence interval for the proportion of 
+study participants who currently smoke. Is this consistent with your result from
+Exercise 6?
+8. **8 points** Does there appear to be an association between baseline smoking 
+status and gender among the patients evaluated in this study? Explain, using
+a formal hypothesis test. 
+
+
+# Acknowledgements
+
+Today's dataset was made available by the Lerner Research Institute and Dr. Amy S. Nowacki of the Cleveland Clinic. This dataset is representative of a study by Ruetzler et al. (2013).

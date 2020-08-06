@@ -1,0 +1,217 @@
+---
+title: "Lab 04"
+author: "STA 198 Summer 2020 (Jiang)"
+output:
+  rmarkdown::html_document:
+    css: "./sta198-labs.css"
+    toc: TRUE
+    toc_float: TRUE
+---
+<br>
+
+Today's lab will introduce the workflow needed for collaborating with others. In doing so, you will work with your *team* to explore song lyrics for albums of your choosing by using tools from text analysis (introduced in a guided individual activity). 
+
+**Do not configure Git until the team-based section.**
+
+# Visualizing text data
+
+**On your own**, create a new project in the STA 198 RStudio Cloud workspace. This project will not be graded; it is only for you to familiarize yourself with the basics of text data visualization (no need to select a specific GitHub repository to create an RStudio Cloud project from).
+
+Follow along with the code and results presented in the following section. We will be exploring song lyrics from two of the most critically acclaimed albums released in 2019: Ariana Grande's album *thank u, next* and The National's album *I Am East to Find*. Try to reproduce these results in your own individual project.
+
+## Packages
+
+Using tidy data principles can make many text mining tasks easier, more effective, and consistent with tools already in wide use. Learn more at [https://www.tidytextmining.com/](https://www.tidytextmining.com/). In addition to the tidyverse, we will be using a few other packages. Run the following code to load the needed packages. You may need to `install.packages()` them first:
+
+```{r, warning = F, message = F}
+library(tidyverse)
+library(tidytext)
+library(genius)
+library(reshape2)
+```
+
+## Tidy text
+
+Remember that tidy data has a specific structure: each observation corresponds to a row, each variable corresponds to a column, and each type of observational unit corresponds to a table. Tidy text is text data in a specific format: a table with a single **token** in each row. A *token* is a meaningful unit of text, such as a word, pair of words, or sentence, etc. To convert raw text into tokens, we will *tokenize* it using R by "un-nesting" the tokens.
+
+Let's go from raw text to a tidy text dataset. For illustration, let's take the first half of the pre-chorus to *thank you, next* (the song). Follow along in your own RStudio Cloud instance, comparing and contrasting the format of the data in each chunk.
+
+First, the raw lyrics, read into R as a vector consisting of four strings:
+
+```{r}
+lyrics <- c("One taught me love",
+          "One taught me patience",
+          "And one taught me pain",
+          "Now, I'm so amazing")
+lyrics
+```
+
+Now a tidy tibble, where we have two variables, `line` and `text` corresponding to the line number and text in each line:
+
+```{r}
+text_df <- tibble(line = 1:4, text = lyrics)
+text_df
+```
+
+Now let's *unnest the tokens*:
+
+```{r}
+text_df2 <- text_df %>% 
+  unnest_tokens(word, text)
+text_df2
+```
+
+## Getting data
+
+We'll use the `genius` package (written by [Josiah Parry](https://github.com/JosiahParry)) to scrape song lyric data from [Genius](https://genius.com/). The function `genius_album()` lets us obtain lyrics for an entire album in a tidy format. We must specify the artist and album (if there are issues, check that we have the album name and artists as specified on [Genius](https://genius.com/)).
+
+```{r, message = F, warning = F}
+ariana <- genius_album(
+  artist = "Ariana Grande", 
+  album = "thank you, next"
+  )
+```
+
+We see that the output is a tidy data frame. Consider words as tokens, unnest them, and save the output as a new tidy data frame. What does this data frame look like? You can ignore the HTML character <U+200B>, as this is just an artifact of the data-scraping process.
+
+```{r}
+ariana_lyrics <- ariana %>%
+  unnest_tokens(word, lyric)
+ariana_lyrics
+```
+
+## Stop words
+
+Let's take a look at the most common words in the data frames `ariana_lyrics` and `national_lyrics`:
+
+```{r}
+ariana_lyrics %>%
+  count(word) %>%
+  arrange(desc(n))
+```
+
+What do you notice? 
+
+**Stop words** are words which are filtered out before or after processing of text data. They usually refer to the most common words in a language, but there is not a single list of stop words used by all natural language processing tools (use `?get_stopwords` for more info). 
+
+Let's take a look at an example of a list of the 571 stop words from the `smart` list:
+
+```{r}
+get_stopwords(source = "smart")
+```
+
+And let's save them into a new vector called `stopwords`. Notice the use of the `pull()` function to save as a vector instead of as a data frame. This is because we simply want a list of the words to exclude from our analysis:
+
+```{r}
+stopwords <- get_stopwords(source = "smart") %>% 
+  select(word) %>% 
+  pull()
+```
+
+Now let's look at the most common words from the two albums, with stop words removed. Pay attention to the way in which we've filtered:
+
+```{r, message = F}
+ariana_lyrics %>%
+  filter(!(word %in% stopwords)) %>%
+  count(word) %>%
+  arrange(desc(n))
+```
+
+Let's save the top 20 most commonly used words (with stop words taken out) as a new data frame, `ariana_top20_words`:
+
+```{r, message = F}
+ariana_top20_words <- ariana_lyrics %>%
+  filter(!(word %in% stopwords)) %>%
+  count(word) %>%
+  arrange(desc(n)) %>% 
+  top_n(20)
+```
+
+## Visualizations
+
+Finally, let's create a bar chart of her top 20 most commonly used words:
+
+```{r}
+# Note: axis labels are "backwards" due to coord_flip()
+ggplot(data = ariana_top20_words, 
+       mapping = aes(fct_reorder(word, n), n)) +
+  geom_col() +
+  coord_flip() + 
+  theme_minimal() +
+  labs(title = "Ariana Grande loves the word 'yeah'",
+       y = "Count",
+       x = "Words")
+```
+
+Now let's compare this bar chart to the top 20 most commonly used words from 
+`I Am Easy To Find:
+
+```{r, message = F}
+national <- genius_album(
+  artist = "The National",
+  album = "I Am Easy To Find"
+)
+
+national_top20_words <- national %>%
+  unnest_tokens(word, lyric)%>%
+  count(word) %>%
+  arrange(desc(n)) %>%
+  anti_join(get_stopwords(source = "smart")) %>% 
+  top_n(20)
+
+ggplot(data = national_top20_words, 
+       mapping = aes(fct_reorder(word, n), n)) +
+  geom_col() +
+  coord_flip() + 
+  theme_minimal() +
+  labs(title = "The National's lyrics suggest quiet introspection",
+       y = "Count",
+       x = "Words")
+```
+
+# Working as a team
+
+Lab teams have been assigned to keep students in the same lab section and time zone together while promoting a diversity of prior computing/statistical experience and intended major paths. 
+
+First things first: come up with a **team name** and a **weekly 2-hour block** during the week (outside of the lab session) that the team can meet virtually to finish lab. You may not need to use this time every week, but it will be helpful to already have a plan for the weeks that you do need extra time. Come up with a way to communicate outside of labs and group meetings (e-mail, text, Slack, etc.).
+
+During team labs, do not pressure each other to finish early; use the time wisely to really learn the material and produce a quality report. Everyone has something to contribute! Use the lab groups as an opportunity to share ideas and learn from each other. When working in teams, do not "split up" the lab among the team members; work on it together in its entirety.
+
+# The team workflow
+
+Team repositories have already been created for you. Go to the course GitHub organization to see your repository - it should be labeled `lab-04-team-xx`, where `xx` is the number corresponding to your team. This assignment is due June 16 at 11:59p. 
+
+[Your team repository may be found here.](https://github.com/sta198-su20)
+
+You and your teammates are working from the **same** lab-04-team-xx GitHub repo. This means that you are **all** contributing to the same R Markdown document! Unlike other collaborative tools where you can see other teammates work in real-time (e.g., Google Docs), local changes to documents are not reflected in the master repository unless a user pushes, and so you will not be able to see others' work in real time. Even more importantly, if multiple group members try to edit the document at the same time, you can run into a **merge conflict** (which then must be resolved).
+
+**Important:** To avoid merge conflicts, for today's lab only one person on the team should be typing the code/narrative in the R Markdown document at a time. Rotate who updates the document; each team member should have at least one commit in the lab (the directions will be very explicit).
+
+# Your turn!
+
+This week's lab will focus on mastering the team workflow. Number your team 
+members from 1 through 3 (or 4, depending on team size). We will create a new
+project in RStudio Cloud from your team repository. The basic team workflow is 
+as follows:
+
+**Step 0:** *Every* team member: create an RStudio Cloud project using your 
+team-specific repository and configure RStudio Cloud to talk to GitHub using the 
+`usethis` package).<br>
+**Step 1:** *Every* team member: Click the **Pull** button in the Git pane in your R Markdown window. This will bring the most updated files from GitHub (the "master" repository) to your RStudio project.<br>
+**Step 2:** *Team member 1 only*: make changes and knit your .Rmd file as needed. **Stage** *every* file in the Git pane, write an informative commit message, **Commit** your changes, and then **Push** your changes to GitHub.<br>
+**Step 3:** *Every* team member: Click the **Pull** button in the Git pane once again. You should now see changes reflected in the documents in your RStudio project.
+**Step 4:** Repeat steps 2-3 as needed, for team members 2, 3, and 4 (depending
+on team size).
+
+1. **15 points** Each team member must commit and push at least once to the team repository
+with a meaningful commit and commit message.
+2. **5 points** What is your team name? What weekly 2-hour block during the week, outside of
+the lab session, have you set aside if needed? How will you communicate outside
+of labs and group meetings?
+3. **20 points** Each team member: select an album of your choice and create a visualization
+depicting the most commonly used meaningful words. At
+least one of your individual commits to the team repository must be of this
+visualization. Make sure your visualization has an "active title" (i.e., not
+"Top 20 words used by Artist ____," etc.)
+4. **10 points** Examine the visualizations created by your team. Are there any interesting
+patterns, usages, or comparisons?

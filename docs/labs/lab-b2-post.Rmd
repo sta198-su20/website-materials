@@ -1,0 +1,421 @@
+---
+title: Lab B2
+author: STA 198 Summer 2020 (Jiang)
+date: "Bonus lab: R Shiny"
+output:
+  rmarkdown::html_document:
+    css: "sta198-labs.css"
+    toc: TRUE
+    toc_float: TRUE
+---
+<br><br>
+
+This lab will introduce the basics of creating interactive, web-based apps using
+R Shiny. This lab is not graded, as it is rather meant to 
+serve as a resource for your data science career (and may be helpful on your
+final project!).  
+
+# Shiny?
+
+Shiny is an R package used to build web-based apps with R in RStudio. Shiny can
+incorporate CSS themes and JavaScript actions. To see some existing apps in 
+action, check out the [Shiny Gallery linked here](https://shiny.rstudio.com/gallery/).
+Once created, you can easily share your app with others! You can upload it to `shinyapps.io`,
+which allows you to create and publish your app. With a free account, you get
+5 active applications, with 25 hours per month of active use.
+
+
+To create a Shiny app, instead of coding in an .Rmd file (markdown), we will
+code using an R script (.R) file. Note that you may have to install the package
+using
+
+```{r, eval = F}
+install.packages("shiny")
+```
+
+To create a new Shiny App, go to `File > New File > Shiny Web App` and follow
+the on-screen prompts. Make sure to keep the option Single File (app.R) selected.
+You should see that the file `app.R` will open -- click on Run App to see the
+result.
+
+Some examples are included in the `shiny` package. Enter any of the following 
+code in the Console to see the app in action (along with the code):
+
+```{r, eval = F}
+runExample("01_hello")        # a histogram
+runExample("02_text")         # tables and data frames
+runExample("03_reactivity")   # a reactive expression
+runExample("04_mpg")          # global variables
+runExample("05_sliders")      # slider bars
+runExample("06_tabsets")      # tabbed panels
+runExample("07_widgets")      # help text and submit buttons
+runExample("08_html")         # Shiny app built from HTML
+runExample("09_upload")       # file upload wizard
+runExample("10_download")     # file download wizard
+runExample("11_timer")        # an automated timer
+```
+
+There are a few basic components in a Shiny app, the user-interface, which 
+specifies what the user experiences, the server logic, which gives the behind-
+the-scenes operations, and a function to build and run the application:
+
+```{r, eval = F}
+library(shiny)
+
+# Define UI:
+ui <- fluidPage(
+  
+)
+
+# Define server logic
+server <- function(input, output){
+  
+}
+
+# Build and run the application
+shinyApp(ui = ui, server = server)
+```
+
+The `fluidPage()` function creates a dynamic HTML user interface that you see 
+when you look at an app. The `server()` function contains the R commands your
+computer (or external server) uses to run the app. Finally, the function
+`shinyApp()` builds the app based on the user interface and server code.
+
+# Building a Shiny app
+
+We're going to build an app that allows users to explore the Brexit referendum
+poll outcomes for 127 polls conducted between January 2016 to June 23. The data
+are available in the `dslabs` package and can be loaded with the code
+`data("brexit_polls")` once the package is installed. We will build the app
+using the following two steps:
+
+- First, we'll construct the UI, focusing on the widgets and layout design
+- Next, we'll learn how to connect the input widgets and outputs with the code
+by using the `server` function
+- And finally, we'll run the app itself
+
+## User interface: inputs
+
+The user inputs essentially collect values from the user. These can be any sort
+of data -- continuous, categorical, dates, etc. These inputs are added as
+**widgets** to the Shiny app, and most input widgets are set-up as
+
+```{r, eval = F}
+___Input(inputId, label, ...)
+```
+
+or 
+
+```{r, eval = F}
+___Button(inputId, label, ...)
+```
+
+For instance, to create a slider widget labeled "Number of bins" that controls
+the number of bins, ranging from 1 to 50, we can use the following code:
+
+```{r, eval = F}
+sliderInput(inputId = "bins", label = "Number of bins:",
+            min = 1, max = 50, value = 30)
+```
+
+This code creates the following input:
+
+```{r, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/sliderInput.png")
+```
+
+Notice the `inputId`. This tells Shiny what this input widget is named, and will
+be important when connecting it to the server code later. This name is not seen
+by the end-user, but the `label` is.
+
+Examples of input widgets are given below. The first and second arguments of the
+function will always be `inputId` and `label`, but the remaining arguments 
+depend on what exactly is being inputed. For further details, consult the help
+documentation.
+
+```{r, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/input-details.png")
+```
+
+Note that if you run the `sliderInput` code in the Console directly, you will 
+actually see some HTML code!
+
+Let's take a look at some more input widgets and what they correspond to on the
+user's side. Note that you can add as many widgets as you want/need.
+
+```{r, eval = F}
+ui <- fluidPage(
+  # add slider
+  sliderInput("bins", "Number of bins:",
+              min = 1, max = 50, value = 30),
+  
+  # text box input
+  textInput("title", "Histogram title", 
+            value = "Histogram"),
+  
+  # combo box
+  selectInput("color", "Histogram fill",
+              choices = c("Red", "White", "Blue"),
+              selected = "Red")
+)
+
+server <- function(input, output) {
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+The picture below corresponds to the code above.
+
+```{r, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/multiple-inputs2.png")
+```
+
+## User interface: outputs
+
+Just as inputs are added as `___Input()`, outputs in Shiny are added with
+`___Output()`. These can be data tables, raw HTML, plots, tables, etc. A table
+of what each output function creates is below:
+
+|     Output function    |   Creates  |
+|:----------------------:|:----------:|
+| `dataTableOutput()`    | data table |
+| `htmlOutput()`         | raw HTML   |
+| `imageOutput()`        | image      |
+| `plotOutput()`         | plot       |
+| `tableOutput()`        | table      |
+| `textOutput()`         | text       |
+| `uiOutput()`           | raw HTML   |
+| `verbatimTextOutput()` | text       |
+
+Similarly to the inputs, the first argument for each output function is
+`outputId`, which is where you specify a name of the output (not seen by the 
+user). Again, this name will serve as a reference when the `server()` function
+runs the code. 
+
+Note that the output function is still part of the `ui` that is created.
+Let's take a look at an example of an output function that corresponds to the
+`sliderInput()` object we created earlier:
+
+```{r, eval = F}
+ui <- fluidPage(
+  # add slider
+  sliderInput("bins", "Number of bins:",
+              min = 1, max = 50, 
+              value = 30),
+  
+  plotOutput(outputId = "hist")
+)
+
+server <- function(input, output) {
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+The code `plotOutput(outputId = "hist")` allocates space for a plot. However,
+since we haven't actually created anything yet, no plot is visible:
+
+```{r, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/output2.png")
+```
+
+Note that each separate input and output is separated by a comma in the
+`fluidPage` function, which we will use to create the `ui` object.
+
+Let's create a UI object for our Brexit poll app. First, load in the data and
+packages, and do a bit of data cleaning.
+
+```{r, eval = F}
+library(shiny)
+library(shinythemes)
+library(dslabs)
+library(DT)
+data("brexit_polls")
+pollsters <- brexit_polls %>% 
+    count(pollster) %>% 
+    pull(pollster) %>% 
+    as.character()
+
+# Define the user interface
+ui <- fluidPage(
+  
+)
+```
+
+1. Create a `ui` object that corresponds to the user interface in the picture
+below. **Hint:** This `ui` object should use a `sidebarLayout()` with a `sidebarPanel()`
+and `mainPanel()`, have a theme from the `shinythemes` package, and have two
+input widgets (`dateRangeInput()` and `selectInput()`) and two outputs 
+(`plotOutput()` and `dataTableOutput()`).
+
+```{r, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/brexit-ui.png")
+```
+
+## The server function
+
+You may notice that you have a user interface built, but it doesn't *do* 
+anything. How was the plot and table in the image created for Exercise 1?
+
+You need to give R commands that react when inputs ar eprovided or are changed.
+These reactions are seen by updates to the outputs. Take a look at the
+[link given here](https://shiny.rstudio.com/gallery/tabsets.html). As you
+change the inputs, look at what is highlighted in the `server()` function below.
+You will create your own `server` function to do similar tasks.
+
+The `server` function plays a special role: it builds a list-like object named
+`output` that contains all of the code needed to update the R objects in your
+app. Each R object needs to have its own entry in the list. You can create an
+entry by defining a new element for output within the server function. The
+element name should match the name of the reactive element that you created in
+the user interface. This is where the `inputId`s and `outputId`s that you 
+defined earlier in your `ui` widgets and outputs come into play.
+
+To create the `server()` function, follow the three steps below:
+
+- First, save objects to display to `output$<outputId>`, where `<outputId>` is
+the name given from the `___Output` function from earlier. For instance:
+
+```{r, eval = F}
+server <- function(input, output) { 
+  output$hist <- # code
+}
+```
+
+- Next, build these `output$<outputId>` objects with the `render___()` family
+of functions. For instance:
+
+```{r, eval = F}
+server <- function(input, output) { 
+  output$hist <- renderPlot({
+    # code to build your object
+    # in this case, code to create
+    # the histogram
+  }) 
+}
+```
+
+Each output corresponds to a specific rendering function, given in the following
+table. Note that each `render___` function only requires a single argument: an
+R expression surrounded by braces. This expression can be one simple line of 
+code, or it can involve many different lines of code.
+
+
+|   Render function   | Creates a reactive                                                        |
+|--------------------:|---------------------------------------------------------------------------|
+| `renderDataTable()` | data table                                                                |
+|     `renderImage()` | image                                                                     |
+|      `renderPlot()` | plot                                                                      |
+|     `renderPrint()` | version of the given function that captures print output                  |
+|     `renderTable()` | table                                                                     |
+|      `renderText()` | version of the given function to turn its result into a character vector. |
+|        `renderUI()` | HTML                                                                      |
+
+The relationship between each output and what "renders" the output is summarized
+in the graphic below:
+
+```{r, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/outputs.png")
+```
+
+- Finally, access your input values with `intput$<inputId>`, where `<inputId>`
+is the name provided from your `___Input()` function from the `ui`.
+
+Assuming a well-built Shiny app, every time the user moves the slider, selects a
+value in a combo box, selects a new radio button option, outputs will
+automatically get updated when inputs change. This is known as reactivity.
+Reactivity automatically occurs whenever you use an input value to render an
+output object.
+
+2. Create a `server` function that corresponds to the user-interface defined
+earlier. Use `renderPlot()` to display a reactive plot that depends on the date
+range and pollster inputs, and `DT::renderDataTable()` to display a reactive
+table that depends on the date range and pollster inputs, sorted by start date.
+
+# Solutions
+
+If you'd like to see the `ui` function and `server` function as implemented for
+the Brexit poll example above, you can click on the following button. However,
+do try to create the app before viewing the solution. As a reminder, the UI and
+output to be created are given in the following screenshot:
+
+```{r, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("img/brexit-ui.png")
+```
+
+<div id="spoiler" style="display:none">
+
+```{r, eval = F}
+# Define the user interface
+ui <- fluidPage(theme = shinytheme("yeti"),
+    # Application title
+    titlePanel("Brexit Polls Explorer"),
+    # sidebar
+    sidebarLayout(
+        sidebarPanel(
+            dateRangeInput(inputId = "daterange",
+                           label   = "Enter poll start range",
+                           start   = "2016-01-08",
+                           end     = "2016-06-23",
+                           min     = "2016-01-08",
+                           max     = "2016-06-23"),
+            selectInput(inputId  = "pollster",
+                        label    = "Select pollster",
+                        choices  = pollsters)
+        ),
+        # main panel
+        mainPanel(
+           plotOutput(outputId = "plotpolls"),
+           dataTableOutput(outputId = "tablepolls")
+        )
+    )
+)
+
+# Create server function
+server <- function(input, output) {
+    output$plotpolls <- renderPlot({
+        brexit_polls %>% 
+            filter(startdate >= input$daterange[1], 
+                   startdate <= input$daterange[2]) %>% 
+            filter(pollster == input$pollster) %>% 
+            ggplot(aes(x = startdate, y = remain)) +
+            geom_point(aes(color = "blue"), size = 2) +
+            geom_line(aes(color = "blue")) +
+            geom_point(aes(y = leave, color = "red"), size = 2) +
+            geom_line(aes(y = leave, color = "red")) +
+            labs(x = "Poll's starting date", y = "Proportion") +
+            theme_minimal(base_size = 20) +
+            theme(legend.position = "bottom") +
+            scale_color_identity(name   = "Brexit Decision",
+                                 breaks = c("blue", "red"),
+                                 labels = c("Remain", "Leave"),
+                                 guide  = "legend")
+    })
+    output$tablepolls <- DT::renderDataTable({
+        brexit_polls %>% 
+            filter(startdate >= input$daterange[1], 
+                   startdate <= input$daterange[2]) %>% 
+            filter(pollster == input$pollster) %>% 
+            arrange(startdate)
+    })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+</div>
+
+<button title="Click to show answer" type="button"
+   onclick="if(document.getElementById('spoiler') .style.display=='none')
+              {document.getElementById('spoiler') .style.display=''}
+            else{document.getElementById('spoiler') .style.display='none'}">
+  Code for Shiny app
+</button>
+
+
+
+# References
+
+- Shiny. (2019). [https://shiny.rstudio.com](https://shiny.rstudio.com).

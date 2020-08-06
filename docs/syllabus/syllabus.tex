@@ -1,0 +1,334 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={STA 102: Intro to Biostatistics},
+  pdfauthor={Spring 2020},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% https://github.com/rstudio/rmarkdown/issues/337
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+% https://github.com/rstudio/rmarkdown/pull/252
+\usepackage{titling}
+\setlength{\droptitle}{-2em}
+
+\pretitle{\vspace{\droptitle}\centering\huge}
+\posttitle{\par}
+
+\preauthor{\centering\large\emph}
+\postauthor{\par}
+
+\predate{\centering\large\emph}
+\postdate{\par}
+
+\title{STA 102: Intro to Biostatistics}
+\author{Spring 2020}
+\date{}
+
+\begin{document}
+\maketitle
+
+STA 102 is an introductory course in statistics and data science
+motivated by timely applications from the health sciences, biomedical
+research, and public health. Students will understand common statistical
+methods and their suitability in answering specific research questions
+of interest, conduct rigorous, reproducible analysis using R, interpret
+results in context and translating them to language accessible to allied
+health science researchers, and critique statistical usage in the field
+in order to evaluate data-based claims and decisions.
+
+\hypertarget{activities-assessments}{%
+\subsubsection{Activities \& Assessments}\label{activities-assessments}}
+
+Activities and assessments focus on understanding methods and
+interpreting results, as well as hands-on analyses of real-world data
+using R. All homeworks and labs must be made via electronic submission
+to the class Sakai page using the R Markdown templates provided, with
+unlimited re-submissions allowed until noon on the due date (only the
+most recent version will be graded).
+
+\hypertarget{homework-20}{%
+\paragraph{Homework (20\%)}\label{homework-20}}
+
+There are ten homeworks, assigned on Tuesdays and due 9 days later on
+the following Thursday. The homeworks focus on interpreting results,
+complete data analyses, and reinforce concepts and methods from lecture
+and lab. Free free to discuss homework assignments with other students
+-- however, all work must be your own and submitted individually.
+
+\emph{No late homeworks are accepted, but the lowest grade is
+automatically dropped.}
+
+\hypertarget{labs-10}{%
+\paragraph{Labs (10\%)}\label{labs-10}}
+
+There are ten computing labs, assigned on Mondays and due 3 days later
+that Thursday (except the first lab). Labs are primarily team-based work
+that focus on developing programming tools to tackle analysis of
+real-world datasets. Lab groups will be assigned in order to promote
+diversity among team members -- you will be asked to evaluate each
+others' contributions periodically throughout the semester.
+
+\emph{No late labs are accepted, but the lowest grade is automatically
+dropped.}
+
+\hypertarget{midterm-exams-45}{%
+\paragraph{Midterm Exams (45\%)}\label{midterm-exams-45}}
+
+Three midterm exams test understanding and interpretation of methods,
+with inclusion of some basic computations as needed. Each exam
+corresponds to one of the three units, and are scheduled on Tuesdays
+(with the lecture on the previous Thursday being reserved for in-class
+review of tested concepts).
+
+All exams are closed, in-class exams, with \textbf{absolutely no
+electronics allowed}, including calculators. However, one (1) single 3''
+by 5'' handwritten index card (front and back) is permitted for use as
+notes to be used for the exam; these must be turned in with the exam.
+
+\emph{Exam dates cannot be changed and no make-up exams will be given.}
+
+\hypertarget{final-group-project-20}{%
+\paragraph{Final Group Project (20\%)}\label{final-group-project-20}}
+
+The final project is an open-ended statistical analysis that answers a
+research question of interest using a real-world dataset. The project
+must be completed with lab group members; you will be asked to evaluate
+team members' contributions. A proposal is assigned March 31 (due April
+7), and final write-ups are due Sunday, April 26 at 11:59p, with
+in-class presentations from 9--12 on Monday, April 27. Submission must
+be made via electronic submission to the class Sakai page, with
+unlimited re-submissions allowed until 11:59p on April 26.
+
+\emph{You must turn in a write-up on time and present with your lab
+group during the final exam period on April 27 in order to pass the
+course.}
+
+More details to follow.
+
+\hypertarget{participation-5}{%
+\paragraph{Participation (5\%)}\label{participation-5}}
+
+Participation consists of completion of in-class activities, as tracked
+by answering discussion questions via Google Forms, in order for me to
+gauge class understanding and stimulate discussion. Participation is
+checked for completeness, not accuracy. Completing 90\% or more of
+participation activities will count as full participation; completing
+less than 90\% will result in the participation grade being assessed pro
+rata according to the percentage of activities completed
+
+\hypertarget{grade-calculation}{%
+\subsubsection{Grade Calculation}\label{grade-calculation}}
+
+The following table presents the contribution of each component to a
+student's final grade:
+
+\{.table .table2 .table-condensed .table-striped .text-left\} {}
+\textbar{} {}\\
+-----\textbar---- Homework \textbar{} 20\% Labs \textbar{} 10\% Midterm
+Exam 1 \textbar{} 15\% Midterm Exam 2 \textbar{} 15\% Midterm Exam 3
+\textbar{} 15\% Final Project \textbar{} 20\% Participation \textbar{}
+5\%
+
+A letter grade will be assigned as follows:
+
+%\{.table .table2 .table-condensed .table-striped .text-center\} {}
+%\textbar{} {} \textbar{} {} \textbar{} {} \textbar{} {}\\
+%----\textbar----\textbar----\textbar----\textbar---- 92.5 \textbar{} ≤
+%\textbar{} A \textbar{} ≤ \textbar{} 100.0 90.0 \textbar{} ≤ \textbar{}
+%A- \textbar{} \textless{} \textbar{} 92.5 87.5 \textbar{} ≤ \textbar{}
+%B+ \textbar{} \textless{} \textbar{} 90.0 82.5 \textbar{} ≤ \textbar{} B
+%\textbar{} \textless{} \textbar{} 87.5 80.0 \textbar{} ≤ \textbar{} B-
+%\textbar{} \textless{} \textbar{} 82.5 77.5 \textbar{} ≤ \textbar{} C+
+%\textbar{} \textless{} \textbar{} 80.0 72.5 \textbar{} ≤ \textbar{} C
+%\textbar{} \textless{} \textbar{} 77.5 70.0 \textbar{} ≤ \textbar{} C-
+%\textbar{} \textless{} \textbar{} 72.5 67.5 \textbar{} ≤ \textbar{} D+
+%\textbar{} \textless{} \textbar{} 70.0 62.5 \textbar{} ≤ \textbar{} D
+%\textbar{} \textless{} \textbar{} 67.5 60.0 \textbar{} ≤ \textbar{} D-
+%\textbar{} \textless{} \textbar{} 62.5 0.0 \textbar{} ≤ \textbar{} F
+%\textbar{} \textless{} \textbar{} 60.0
+
+Attendance in lecture and lab is a firm expectation; frequent absences
+or tardiness will be considered a legitimate cause for grade reduction.
+
+If you have a cumulative numerical average of at least 90\%, you are
+guaranteed at least an A-; 80\% at least a B-, etc. I may use more
+generous cut points depending on the overall difficulty of assignments
+and examinations, but under no circumstances will a student's grade be
+curved downward.
+
+Regrade requests for homeworks, labs, and exams must be submitted within
+one week of when the assignment is returned, and should be submitted
+through the \href{link\%20goes\%20here}{online form}. Regrade requests
+will be honored if there is an error in the grade calculation or a
+correct answer was mistakenly marked as incorrect. Note, however, that
+regrades may result in a lower grade than originally given. No grades
+will be changed after the final project presentations.
+
+\emph{Grades can only be changed by Professor Jiang. Teaching Assistants
+cannot change grades on returned assignments.}
+
+\hypertarget{absences-and-late-work}{%
+\subsubsection{Absences and Late Work}\label{absences-and-late-work}}
+
+Students who miss a class due to a scheduled varsity trip, religious
+holiday, or short-term illness should fill out the respective form:
+however, these excused absences do not excuse you from assigned work.
+
+If you have a personal or family emergency or chronic health condition
+that affects your ability to participate in class, please contact your
+academic dean's office. Review the
+\href{https://trinity.duke.edu/undergraduate/academic-policies/class-attendance-and-missed-work}{Trinity
+excused absence policy} for further details.
+
+Exams missed in accordance with the excused absence policy will not
+count toward grade calculations; the other two exams will be
+up-weighted. However, you must take at least two exams, submit the final
+project write-up on time, and present the final project during the final
+exam period in order to pass the course.
+
+\textbf{No late work is accepted.}
+
+\hypertarget{procedure-for-testing-accommodations}{%
+\subsubsection{Procedure for Testing
+Accommodations}\label{procedure-for-testing-accommodations}}
+
+This class will use the Testing Center to provide testing accommodations
+to undergraduates registered with and approved by the
+\href{https://access.duke.edu/students}{Student Diability Access Office
+(SDAO)}. The center operates by appointment only and appointments must
+be made at least 7 consecutive days in advance, but please schedule your
+appointments as far in advance as possible. You will not be able to make
+an appointment until you have submitted a Semester Request with the SDAO
+and it has been approved. So, if you have not done so already, promptly
+submit a Semester Request to the SDAO in order to make your appointment
+in time. For instructions on how to register with SDAO, visit their
+website \href{https://access.duke.edu/requests}{here}. For instructions
+on how to make an appointment at the Testing Center, visit their website
+\href{https://testingcenter.duke.edu}{here}.
+
+\hypertarget{inclusion-class-etiquette}{%
+\subsubsection{Inclusion \& Class
+Etiquette}\label{inclusion-class-etiquette}}
+
+Behavior in and out of the classroom should enhance the learning
+process. At all times we will use common courtesy and respectful
+behavior. In this course, we will strive to create a learning
+environment that is welcoming to all students and that is in alignment
+with
+\href{https://provost.duke.edu/initiatives/commitment-to-diversity-and-inclusion}{Duke's
+Commitment to Diversity and Inclusion}.
+
+If there is any aspect of the class that is not welcoming or accessible
+to you, please let me know immediately. Additionally, if you are
+experiencing something outside of class that is affecting your
+performance in the course, please feel free to talk with me and/or your
+academic dean
+
+\hypertarget{where-to-find-help}{%
+\subsubsection{Where to find help}\label{where-to-find-help}}
+
+If you have a question, ask! There are likely other students with the
+same question, so by asking you will create a learning opportunity for
+everyone. Occasionally, I may defer a question to office hours. Please
+be understanding -- it does not mean that I think your question is bad;
+we may simply be running behind. - Office hours are a valuable resource
+for more individual attention. Use them! - Outside of class and office
+hours, general questions about course content or assignments should be
+posted on the course Piazza site, since there are likely other students
+with the same questions. - Sometimes you may need help with the class
+that is beyond what can be provided by the teaching team. In that
+instance, I encourage you to visit the
+\href{https://arc.duke.edu/}{Academic Resource Center (ARC)}. The ARC
+offers free services to all students during their undergraduate careers
+at Duke. Services include Learning Consultations, Peer Tutoring and
+Study Groups, ADHD/LD Coaching, Outreach Workshops, and more.
+
+\hypertarget{academic-honesty}{%
+\subsubsection{Academic Honesty}\label{academic-honesty}}
+
+Academic honesty is of paramount importance in this class, and all work
+must be done in accordance with the Duke Community Standar, reproduced
+as follows:
+
+To uphold the
+\href{https://studentaffairs.duke.edu/conduct/about-us/duke-community-standard}{Duke
+Community Standard}: - I will not lie, cheat, or steal in my academic
+endeavors; - I will conduct myself honorably in all my endeavors; and -
+I will act if the Standard is compromised.
+
+By enrolling in this course, you have agreed to abide by and uphold the
+provisions of the
+\href{https://studentaffairs.duke.edu/conduct/about-us/duke-community-standard}{Duke
+Community Standard} as well as the policies specific to this course. Any
+violations will automatically result in a grade of 0 on the assignment
+and will be reported to the
+\href{https://studentaffairs.duke.edu/conduct}{Office of Student
+Conduct} for further action.
+
+\hypertarget{technology}{%
+\subsubsection{Technology}\label{technology}}
+
+You should bring a laptop to every lecture and lab session. Outlets are
+limited, so make sure it is fully-charged. Ensure the volume on all
+devices is set to mute, and please refrain from engaging in activities
+not related to the class discussion. Browsing the web and social media,
+excessive messaging, playing games, etc. is not only a distraction for
+you but is also a distraction for everyone around you.
+
+\end{document}

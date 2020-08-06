@@ -1,0 +1,374 @@
+---
+title: "Lab B0"
+author: "STA 198 Summer 2020 (Jiang)"
+output:
+  rmarkdown::html_document:
+    css: "./sta198-labs.css"
+    toc: TRUE
+    toc_float: TRUE
+---
+<br>
+```{r, echo = F, warning = F, message = F}
+setwd("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/")
+#remotes::install_github("kjhealy/covdata")
+library(covdata)
+library(tidyverse)
+
+covid_cases <- covnat %>%
+  select(date, cname, iso3, cases, deaths) %>%
+  drop_na(iso3) %>%
+  group_by(iso3) %>%
+  arrange(date) %>%
+  mutate(cu_cases = cumsum(cases), 
+         cu_deaths = cumsum(deaths)) %>%
+  filter(cu_cases > 99) %>%
+  mutate(days_elapsed = date - min(date),
+         cname = recode(cname, `Korea, Republic of` = "South Korea")) %>% 
+  filter(days_elapsed <= 60) %>% 
+  filter(iso3 %in% c("USA", "KOR", "CHN", "ITA"))
+
+write.csv(covid_cases, "covid_cases.csv")
+
+covid_cases_bg <- covid_cases %>% 
+  select(-cname)
+
+cnames <- covid_cases %>% 
+  select(cname) %>% 
+  unique()
+
+ex_plot <- covid_cases  %>%
+  ggplot(mapping = aes(x = as.numeric(days_elapsed), y = cu_cases)) + 
+  geom_line(data = covid_cases_bg, 
+            aes(group = iso3),
+            size = 0.15, color = "darkgrey") + 
+  geom_line(color = "firebrick",
+            lineend = "round") + 
+  scale_y_log10(labels = scales::label_number_si()) + 
+  facet_wrap(~ cname, ncol = 2) +
+  labs(x = "Days Since 100th Confirmed Case", 
+       y = "Cumulative Reported Cases (log10 scale)", 
+       title = "Cumulative Reported Cases of COVID-19", 
+       subtitle = "Followed for 2 months after 100th confirmed case", 
+        caption = "Adapted from code by Kieran Healy; Data from https://www.ecdc.europa.eu/") + 
+  theme_bw() + 
+  theme(plot.title = element_text(face = "bold"))
+```
+
+Today's lab will introduce the computing tools we will be using this semester 
+and the workflow for all assignments in this course. You will learn how to clone 
+a remote repository from GitHub into an RStudio Cloud project, create a 
+reproducible visualization and report using R Markdown, and push your changes 
+to your own GitHub repository. Finally, although you will knit your finished 
+report into a .pdf file and submit it to Gradescope, 
+**this week's lab will not be graded for credit.**
+
+That was a lot of new vocab -- let's explore what some of these things are!
+
+# Meet the toolkit
+
+**R** is a free, open-source statistical programming language used for 
+computation, data analysis, and graphics generation. It is widely used by 
+statisticians, data scientists, and applied researchers in many fields. R is 
+flexible and freely available to the public, who have in turn written many 
+user-contributed **packages** which provide additional functionality. 
+
+**RStudio** is a free and convenient interface for R (technically an 
+**integrated development environment**, or IDE) that adds convenient features 
+and tools, such as for developing packages or exporting output in convenient 
+formats. In this class, we'll be doing all of our computation in RStudio. At its 
+simplest, R is like a car's engine, and RStudio is akin to its dashboard (credit 
+to Chester Ismay and Albert Kim at [Modern Dive](https://moderndive.com/) for 
+the analogy).
+
+RStudio has a number of built-in tools and extensions. For instance, we can use 
+*literate programming* (that is, having code, narrative, and output all in one 
+document) using **R Markdown**, which is natively supported by RStudio. R 
+Markdown allows the creation of fully reproducible reports -- the analysis is 
+run from the beginning each time you **knit** the document. Depending on your 
+personal set-up, you can knit to .pdf documents, .html documents, or other 
+formats. In fact, this lab webpage was written in R Markdown.
+
+**Git** is a free, open-source version control system (kind of like track 
+changes from word, but way more robust) that can also be used for collaboration 
+among multiple contributors. Users can **commit** to a repository that contains 
+any number of files, and the complete commit history is authenticated, 
+cryptographically secure, and shareable. **GitHub** is a free and widely-used 
+online hosting service for collaboration and version control using Git and is 
+the home of the Git-based projects on the internet in this course.
+
+**RStudio Cloud** is an online, cloud-hosted service that runs a distributed 
+instance of RStudio. Anyone with an RStudio Cloud account and internet access 
+can use this RStudio Cloud to run RStudio directly in a web browser, *without* 
+installing anything on their own computer. Importantly, it interfaces well with 
+GitHub (as we will see today), and already has everything built-in to allow you 
+to directly knit well-formatted .pdf and .html documents without installation of 
+additional dependencies.
+
+# The basic workflow
+
+Each assignment in this course will follow the same basic workflow. It may seem 
+daunting at first, but before too long it will become second nature. The steps 
+are as follows; in subsequent sections of this document, we'll walk through them 
+together in more detail (refer to the recording if you need any help, or ask 
+your lab TA).
+
+- Clone an existing assignment repository into a personal repository.
+- Create a new RStudio Cloud Project based on your cloned repository.
+- Perform your data analysis in RStudio Cloud in an R Markdown document 
+(staging, committing, and pushing changes to your repository as necessary).
+- Knit your final product into a .pdf document, and push one final time to your 
+repository.
+- Upload this .pdf document to Gradescope.
+
+# Creating our first visualization
+
+## Preliminary steps
+
+First, make sure that you are part of both the GitHub organization for the class. The course GitHub organization already has every assignment in a private
+repository. In STA 198, we've made it easy to clone a repository to a personal
+GitHub repository accessible only to you, the instructor/TAs, and any potential
+group members.
+
+First, make sure that you are a member of the course organization GitHub repository at [https://github.com/sta198-su20](https://github.com/sta198-su20). You should see a screenshot similar to the following, inviting you to join this organization:
+
+```{r invite1, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/invite1.png")
+```
+
+Upon clicking the link at the top of the page, you should see the following screen:
+
+```{r invite2, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/invite2.png")
+```
+ 
+Join the organization by clicking on the green button.
+
+## Clone an existing repository into a personal repository
+
+To clone the Lab B0 directory into your own private repository, click on the
+following link: [https://classroom.github.com/a/1o-E2RXo](https://classroom.github.com/a/1o-E2RXo).
+You should see a screenshot as follows:
+
+```{r accept1, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/accept1.png")
+```
+
+When all done, you should see the following screen, letting you know that the
+repository creation was successful:
+
+```{r accept2, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/accept2.png")
+```
+
+Clicking on this link will bring you to the repository, which will give you a .git link to use to clone the repository:
+
+```{r clone, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/clone.png")
+```
+
+## Create a new RStudio Cloud Project using this directory
+
+Next, go to the course workspace [https://rstudio.cloud/spaces/68881/](https://rstudio.cloud/spaces/68881/) and login using your GitHub credentials. You should see screens similar to the following:
+
+```{r login1, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/login1.png")
+```
+
+```{r login2, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/login2.png")
+```
+
+Upon doing so, you should now be in RStudio Cloud. On the left side, you will see a number of workspaces. Make sure that you are in the STA 198L Summer 2020 workspace, or else you will not have access to the repository:
+
+```{r workspace, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/workspace.png")
+```
+
+Once you are in this workspace, create a new project from Git Repo using the button in the top-right hand corner:
+
+```{r newproject, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/newproject.png")
+```
+
+You will be prompted to enter in a Git link from which to clone the project. Use the link from the repository that you created before:
+
+```{r newproject2, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/newproject2.png")
+```
+
+You will be prompted once again to enter in your GitHub login credentials. Make sure you do this accurately (if you don't, the clone won't work):
+
+```{r login3, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/login3.png")
+```
+
+## Perform the data analysis (with Git along the way)
+
+You should now see the following window, which is the RStudio Cloud workspace:
+
+```{r cloud1, fig.margin = TRUE, echo = FALSE, out.extra='style="background-color: #00539B; padding:2px; display: inline-block;"'}
+knitr::include_graphics("C:/Users/Yue/Courses/STA 198 2020 Summer/Website/docs/labs/img/lab-b0/cloud1.png")
+```
+
+## Final document knitting and repository push
+
+## Uploading finished product to Gradescope
+
+Before we get started, 
+
+Step 1. Create a GitHub account if you haven't already 
+[(click here)](https://github.com/).
+Step 2. Accept the invitation to join the course GitHub organization at [https://github.com/sta198-su20](https://github.com/sta198-su20).
+Step 3. Accept the invitation to join the course RStudio Cloud Workspace (check 
+your e-mail for the private link). 
+**Make sure your RStudio Cloud account is associated with your GitHub account** 
+(log-in with your GitHub credentials).
+
+## Accepting an assignment
+
+Go to RStudio Cloud, and make sure you are in the 
+[STA 198L Summer 2020 Workspace](https://rstudio.cloud/spaces/68881/). You may 
+see "Your Workspace" listed in the left column -- do not use this space, as it 
+has not been properly set-up with our class. **SCREENSHOT HERE**
+
+Click on link to accept assignment (explain what this does behind the scenes)
+
+New Project from Git Repo
+
+## The assignment
+
+what you'll see, etc.
+
+to do: copying a project to rstudio cloud from a github repository
+knitting documents, rmarkdown, and some r syntax
+making a change locally, committing, and pushing.
+
+You can download it yourself
+
+join class org on github using github credentials
+make sure you can log onto rstudio cloud with github credentials
+
+# First steps in RStudio Cloud
+
+With R and RStudio installed, we'll begin by exploring RStudio: the interface, 
+reading in data, and basic commands. Upon opening RStudio, you should see 
+something similar to the window below:
+
+The **console** is the panel on the left side, and is where users can type commands and see immediate output. Let's try it out! Type the following code into the console:
+
+```{r 1+1input, eval = FALSE}
+3+4
+```
+You should get output that looks like
+
+```{r 1+1output, echo = FALSE}
+3+4
+```
+
+(For now, ignore the `[1]`). By typing in `3+4`, we got the expected answer, `7`. We can see that R can be used as a calculator directly in the console. Try some other commands that use R as a calculator. For instance, `4*25`, `exp(1.5)`, or `(12+5^3)/sqrt(70)`. Of course, R is not simply a calculator; other commands may also be entered here. To illustrate, let's load a dataset. Enter the following command into the console (you can directly copy/paste it, but make sure everything is exactly as below):
+
+```{r cdcdata, echo = TRUE, warning=FALSE, message=FALSE}
+cdc <- read.csv("https://www2.stat.duke.edu/courses/Spring20/sta102.001/labs/data/cdc_cleaned.csv")
+```
+
+We've just loaded a dataset named `cdc`. These data primarily come from the Sortable Risk Factors and Health Indicators dataset from the CDC, which comprises demographic and health indices compiled from various federal sources. This dataset is now part of our **environment**, which is displayed on the top half of the right side of the RStudio window.
+
+The environment contains all objects in the current working space. These objects could be variables, lists of variables, or even entire datasets. In the same location as the environment tab, the **history** tab displays all commands used during the current session (don't worry about the connections tab for now). Finally, the bottom half of the right-hand panel shows information regarding files on your hard drive, installed packages, output such as plots, and help files or other documents.
+
+Coming back to the dataset we loaded in, we see that it is named `cdc`. We can take a look at this dataset in a spreadsheet-like window by clicking on `cdc` in the Environment tab to the right, or by running the following code in the console:
+
+```{r viewdata, eval = FALSE}
+View(cdc)
+```
+
+Note that other objects may be added to the environment, either from external data sources from the internet as in today's example, datasets downloaded to your computer, or even as created as manipulations of existing datasets.
+
+# R Markdown and reproducible research
+
+R Markdown is a system that may be used to create easy-to-write, attractive reports, presentations, or webpages that also serve as reproducible records of the data anlysis. These reports have the desirable property of being able to not only display written text narratives and figures, but also include any R code and the outputs from these code snippets and analyses.
+
+One of the biggest strengths of R Markdown is that everything is in one place, and that other users should be able to reproduce your results exactly, if they have your R Markdown document and datasets -- the analysis is run from the beginning each time you render the document. As well, formatting is easy! Luckily, RStudio already comes with R Markdown support, so there is nothing additional to install. 
+
+Every homework assignment and lab in this class will be written in R Markdown, with a template provided for you to use. OPEN THE TEMPLATE.
+
+Fill in answers in the spaces provided: text narrative should be typed directly in the document and any included R code should be typed inside "chunks," or sections defined by three backticks (the little mark on the same key as the tilde). See the template for more instructions, or ask your TAs. 
+
+**An important thing to note** is that the workspace of the R Markdown document is separate from the console -- this means that you must load any packages inside of R chunks if you want to use functions contained in them. In the template for this lab, this has been done already, but in the future you may have to do it yourself.
+
+In order to turn this template into a shareable document, **knit** the R Markdown template into a .pdf document by pressing the Knit button in the taskbar (appropriately, it has a ball of yarn next to it). You may have to click on the arrow next to the button to select .pdf document. Once you do so, you should see the template rendered as a .pdf file!
+
+OPEN THE TEMPLATE. MODIFY YOUR NAME. 
+
+STAGE/COMMIT/PUSH.
+
+# Physical activity and adult obesity
+
+Today we will be making some basic visualizations using the `ggplot` package in the tidyverse.
+
+In this section we'll work through a visualization example using the `cdc` dataset, focusing on the following three variables for now:
+
+* `Exercise`, the percentage of adults that participated in 2.5 hours or more of aerobic physical activity per week, and
+* `Obesity`, the percentage of adults who were obese (BMI > 30) in 2016
+* `HDI`, the Human Development Index of each state in 2017, categorized into whether they are among the top ten, the bottom ten, or the middle
+
+Let's begin with a very simple plot. Run the following code in the console:
+
+```{r graph1, eval = F}
+ggplot(data = cdc, mapping = aes(x = Exercise, y = Obesity)) + 
+  geom_point()
+```
+We just created our first plot in R! Let's break down what each of these components is. `ggplot()` is the function that tells R to make a plot. We are plotting data from the `cdc` dataset, with `Exercise` on the x-axis and `Obesity` on the y-axis. Adding (`+`) the `geom_point() tells R specifically to create a scatterplot.
+
+3. Does there appear to be a relationship between the percentage of adults in a state who participate in at least 2.5 hours of aerobic exercise a week and the percentage of adults in that state who are obese? If so, what is this relationship?
+
+Now run the following code:
+
+```{r graph2, eval = F}
+ggplot(data = cdc, mapping = aes(x = Exercise, y = Obesity, color = HDI, shape = HDI)) + 
+  geom_point()
+```
+
+How does this code differ from the previous snippet? What changes in the scatterplot does this change correspond to? 
+
+Finally, run the following code, which should result in the plot below:
+
+```{r graph3, echo = T}
+ggplot(data = cdc, mapping = aes(x = Exercise, y = Obesity, color = HDI, size = CVDeathRate)) + 
+  geom_point() +
+  labs(title = "Aerobic Activity vs. Obesity by State HDI", subtitle = "Faceted by Region", x = "Adequate aerobic activity (%)", y = "Obesity (%)") + 
+  facet_grid(.~Region) +
+  theme_bw()
+```
+
+Again, how does this code differ from the previous plot, and what changes in the plot itself correspond to the additional code?
+
+4. How does the HDI of a state relate to the percentage of residents in each state who get 2.5 hours of aerobic activity and who are obese?
+
+# Your turn!
+
+5. Now it's your turn to create a scatterplot! In the R chunk provided in the template, write code that plots two of the following variables against each other:
+
+* `InfantMortalityRate`: infant mortality rate per 100,000
+* `CVDeathRate`: death rate per 100,000 due to cardiovasulcar causes
+* `DrugDeathRate`: death rate per 100,000 due to drug-related causes (ODs, etc.)
+* `MotorDeathRate`: death rate per 100,000 due to motor vehicle-related causes
+* `CancerDeathRate`: death rate per 100,000 due to cancer
+* `Obesity`: % of adults who are obese
+* `Smoking`: % of adults who smoked at least one cigarette in the past month
+* `Exercise`: % of adults who participated in at least 2.5 hours of aerobic activity per week
+* `Seatbelt`: % of adults to regularly wear their seat belt
+* `FluVaccination`: % of adults who received a flu vaccine
+* `ChildVaccination`: % of children who aged 19-35 months who have received the DTaP, polio, MMR, Hib, hepatitis B, varicella and PCV vaccines
+* `Under18`: % of residents under age 18
+* `Over65`: % of residents over age 65
+
+In your plot for Exercise 5, color code your points by either `Region` (the four US regions as defined by the census) or `HDI` (Human Development Index). All axes should be labeled meaningfully, a legend should be added explaining the color code, and a title should be provided.
+
+6. What variables did you choose?
+7. Did there appear to be any sort of pattern or relationship among these variables? Describe your findings. (It's ok if there doesn't appear to be any sort of relationship!)
+
+# From .html to .pdf
+
+As you've seen previously, we can **knit** the template into an .html file that can be opened by any web browser. To export it as a .pdf, open the file in your web browser and then print to or save as a .pdf document. Your TAs will show you how if you need help! (There is a way to directly knit to a .pdf file, but it's quite a bit more involved.)
+
+**Important:** You must turn in a .pdf file corresponding to the R Markdown template to Sakai in order to receive credit for the labs and homework assignments.
