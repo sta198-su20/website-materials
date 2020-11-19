@@ -9,32 +9,36 @@ output:
 ---
 <br>
 
-Today's lab will focus on data wrangling using the `tidyverse` (in particular, basic functions in `dplyr`). The lab has a pretty hefty guided portion -- follow along with the code that is written to familiarize yourself with the commands. Don't hesitate to ask your lab TAs or each other for help!
+Today's lab will focus on data wrangling using the `tidyverse` (in particular, 
+basic functions in `dplyr`). The lab has a pretty hefty guided portion -- follow 
+along with the code that is written to familiarize yourself with the commands. 
+Don't hesitate to ask your lab TAs or each other for help!
 
-Clone an existing assignment repository into a personal repository and create a new RStudio Cloud Project based on your cloned repository in the class workspace. Knit your final product into a .pdf document and upload this .pdf document to Gradescope by 11:59p US Eastern Time, on June 2nd.
-
-Click on the following link to clone the lab directory: 
-
-[https://classroom.github.com/a/n5mgtlDc](https://classroom.github.com/a/n5mgtlDc)
-
-It may take a bit longer to create the RStudio Cloud project due to the slightly larger dataset.
+The data are available by typing in the following:
 
 # NC bike crash data
 
-This week's data come from the North Carolina Department of Transportation. Each year, about 1,000 bicyclists are involved in police-reported crashes with motor vehicles in North Carolina, with 60 serious injuries and 20 deaths. This is a tragic yet preventable public health issue. Today's dataset provides all 7,467 police-reported bicycle crashes involving a motor vehicle in North Carolina from 2007 through 2014 and are found in the `data` folder in the repository.
+This week's data come from the North Carolina Department of Transportation. Each 
+year, about 1,000 bicyclists are involved in police-reported crashes with motor 
+vehicles in North Carolina, with 60 serious injuries and 20 deaths. This is a 
+tragic yet preventable public health issue. Today's dataset provides all 7,467 
+police-reported bicycle crashes involving a motor vehicle in North Carolina from 
+2007 through 2014.
 
 # Examining our dataset
 
-Last week, we installed the `tidyverse` package, which contains the `dplyr` package for data manipulation. Since this package should already be installed, we only need to load it into memory to access its functions and capabilities. Let's read in the dataset using the `read_csv` function from the `tidyverse`:
+**Remember**, the R Console and the Markdown document live in separate 
+environments. If you load the `tidyverse` package or the dataset in your 
+console, it won't be loaded into the workspace for knitting the R Markdown 
+document (and vice-versa). The Console is very useful for "testing" code -- 
+seeing if what you input results in what you want. However, for creating 
+reproducible documents, you should be using the R Markdown environment in the 
+Source Pane (the top-left area of your RStudio window).
 
-```{r load-tidyverse, eval = FALSE}
-library(tidyverse)
-ncbikecrash <- read_csv("data/ncbikecrash.csv")
-```
-
-**Remember**, the R Console and the Markdown document live in separate environments. If you load the `tidyverse` package or the dataset in your console, it won't be loaded into the workspace for knitting the R Markdown document (and vice-versa). The Console is very useful for "testing" code -- seeing if what you input results in what you want. However, for creating reproducible documents, you should be using the R Markdown environment in the Source Pane (the top-left area of your RStudio window).
-
-Suppose we're interested in knowing the names or some basic characteristics of the `ncbikecrash` dataset. This is probably not something we want to include in our final document, but something just for our own curiosity. Try running the following two commands in the Console, and seeing what happens:
+Suppose we're interested in knowing the names or some basic characteristics of 
+the `ncbikecrash` dataset. This is probably not something we want to include in 
+our final document, but something just for our own curiosity. Try running the 
+following two commands in the Console:
 
 ```{r names, eval = FALSE}
 names(ncbikecrash)
@@ -44,9 +48,14 @@ names(ncbikecrash)
 glimpse(ncbikecrash)
 ```
 
-The `names()` function returns the list of variable names in the dataset, while the `glimpse` function (part of the `tidyverse`) provides a list of names, the type of variable (integer vs. string vs. double, etc.), as well as the first few observations of each so you get a feel for what some of the data points look like for each variable.
+The `names()` function returns the list of variable names in the dataset, while 
+the `glimpse` function (part of the `tidyverse`) provides a list of names, the 
+type of variable (integer vs. string vs. double, etc.), as well as the first few 
+observations of each so you get a feel for what some of the data points look 
+like for each variable.
 
-You can also `View` the dataset by using the `View()` function. Try running the following command in the Console:
+You can also `View` the dataset by using the `View()` function. Try running the 
+following command in the Console:
 
 ```{r view, eval = FALSE}
 View(ncbikecrash)
@@ -54,27 +63,37 @@ View(ncbikecrash)
 
 # Manipulating datasets
 
-`dplyr` is a package that allows users to do some of the most common data manipulation functions. Essentially, pliers for dataframes (hence the name). It is based on the philosophy of functions as **verbs** that manipulate dataframes. Under the rules of `dplyr`, the first argument is always a dataframe, subsequent arguments say what to do with that dataframe, and `dplyr`-based manipulations will always return a data frame. What are some of these verbs that say what to do with our dataframes?
+`dplyr` is a package that allows users to do some of the most common data 
+manipulation functions. Essentially, pliers for dataframes (hence the name). It 
+is based on the philosophy of functions as **verbs** that manipulate dataframes. 
+Under the rules of `dplyr`, the first argument is always a dataframe, subsequent 
+arguments say what to do with that dataframe, and `dplyr`-based manipulations 
+will always return a data frame. What are some of these verbs that say what to 
+do with our dataframes?
 
 - `filter`: pick rows (observations) matching certain criteria
 - `slice`: pick rows (observations) using an index/indices
-- `select`: pick columns (variables) by name
-- `pull`: grab a column as a vector instead of a data frame
-- `arrange`: reorder rows
-- `mutate`: add new variables (often used with `casewhen`...more on this later)
 - `distinct`: filter for unique rows
-- `sample_n`: randomly sample `n` rows
-- `sample_frac`: randomly sample a fraction of rows from the dataset
-- `summarise` (or `summarize`): reduce variables to summary statistic values
+- `select`: pick columns (variables) by name
+- `arrange`: reorder rows
+- `summarize`: reduce variables to summary statistic values
+- `mutate`: add new variables (often used with `case_when`...more on this later)
 - ...and many more.
 
-As you can see, many of these verbs do what you would expect them to do based on their function name.
+As you can see, many of these verbs do what you would expect them to do based on 
+their function name.
 
 # Pipes
 
-`dplyr` functions use a special operator, `%>%`, called a **pipe**. This operator "pipes" the output of the previous line of code as the first input of the next line of code. You can think of pronouncing it as "and then." 
+`dplyr` functions use a special operator, `%>%`, called a **pipe**. This 
+operator "pipes" the output of the previous line of code as the first input of 
+the next line of code. You can think of pronouncing it as "and then." 
 
-Let's use an everyday example (well, before stay-at-home orders) to illustrate how a pipe works. Consider the following sequence of actions: 1) find car keys, 2) start the car, 3) drive to Duke, and finally, 4) park. if we express this sequence of actions as a set of nested functions in `R` "code," this might look like
+Let's use an everyday example (well, before stay-at-home orders) to illustrate 
+how a pipe works. Consider the following sequence of actions: 1) find car keys, 
+2) start the car, 3) drive to Duke, and finally, 4) park. if we express this 
+sequence of actions as a set of nested functions in `R` "code," this might look 
+like
 
 ```{r nested-functions, eval = FALSE}
 park(drive(start_car(find("keys")), to = "campus"))
@@ -94,11 +113,15 @@ find("keys") %>%
 # still, try to "read" the code in plain English
 ```
 
-Remember, the `%>%` operator is pronounced "and then," and so the above function using pipes might be pronounced "*find keys, and then start the car, and then drive to campus, and then park*." Much easier to figure out!
+Remember, the `%>%` operator is pronounced "and then," and so the above function 
+using pipes might be pronounced 
+*find keys, and then start the car, and then drive to campus, and then park*." 
+Much easier to figure out!
 
 # Logical operators in R
 
-In `R`, there are different ways of relating variables. Consider two variables, `x` and `y`.
+In `R`, there are different ways of relating variables. Consider two variables, 
+`x` and `y`.
 
 - `x & y`: `x` AND `y`
 - `x | y`: `x` OR `y`
@@ -107,48 +130,67 @@ In `R`, there are different ways of relating variables. Consider two variables, 
 - `<=` and `>=`: less than/greater than or equal to
 - `==`: exactly equal to
 - `!=`: not equal to
-- `is.na(x)`: tests if `x` is `NA` and returns a list of `TRUE` or `FALSE` for each element of `x` (similarly, `!is.na(x)` tests for NOT being `NA`)
-- `x %in% y`: tests if elements of `x` are in `y` and returns a list of `TRUE` or `FALSE` corresponding to each element of `x`
+- `is.na(x)`: tests if `x` is `NA` and returns a list of `TRUE` or `FALSE` for 
+each element of `x` (similarly, `!is.na(x)` tests for NOT being `NA`)
+- `x %in% y`: tests if elements of `x` are in `y` and returns a list of `TRUE` 
+or `FALSE` corresponding to each element of `x`
 
 # Putting it all together
 
-In this section, we're going to walk through some code that examines the logical operators in R. Follow along these steps that make use of some of the functions above.
+In this section, we're going to walk through some code that examines the logical 
+operators in R. Follow along these steps that make use of some of the functions 
+above.
 
 ### filter
 
-We use the `filter` function to select a subset of observations following some criterion(a). Suppose we are only interested in observations in Durham County. Run the following code:
+We use the `filter` function to select a subset of observations following some 
+criterion(a). Suppose we are only interested in observations in Durham County. 
+Run the following code:
 
 ```{r filter-1, eval = FALSE}
 ncbikecrash %>%
   filter(county == "Durham")
 ```
 
-The code should have returned a dataset with 340 rows (observations) and the same 66 variables as before. We use the logical operator `==` to take counties exactly equal to "Durham." Remember that the output of pipe operators is another dataframe (if you are wondering what a `tibble` is, you can think of it as a special dataframe format specific to the `tidyverse`). Suppose we wanted to save the Durham County crashes as a new dataframe, `durham_crashes`. We can use the assignment operator to do that:
+The code should have returned a dataset with 340 rows (observations) and the 
+same 66 variables as before. We use the logical operator `==` to take counties 
+exactly equal to "Durham." Remember that the output of pipe operators is another 
+dataframe (if you are wondering what a `tibble` is, you can think of it as a 
+special dataframe format specific to the `tidyverse`). Suppose we wanted to save 
+the Durham County crashes as a new dataframe, `durham_crashes`. We can use the 
+assignment operator to do that:
 
 ```{r filter-2, eval = FALSE}
 durham_crashes <- ncbikecrash %>% 
   filter(counter == "Durham")
 ```
 
-Finally, we can filter for many conditions at once. Suppose we're interested in crashes in Durham County where an ambulance was required, from 2014 onward. We might use the following code:
+Finally, we can filter for many conditions at once. Suppose we're interested in 
+crashes in Durham County where an ambulance was required, from 2014 onward. 
+We might use the following code:
 
 ```{r filter-3, eval = FALSE}
 ncbikecrash %>% 
   filter(county == "Durham" & ambulance_req == "Yes" & crash_year >= 2014)
 ```
 
-We see that there are 28 such observations, and that the previous code returned a `tibble` containing their information.
+We see that there are 28 such observations, and that the previous code returned 
+a `tibble` containing their information.
 
 ### slice
 
-Instead of picking observations that match certain criteria, we can simply take a `slice` of the dataset that contains specified row numbers that we want. For instance, let's take the 4th observation:
+Instead of picking observations that match certain criteria, we can simply take 
+a `slice` of the dataset that contains specified row numbers that we want. For 
+instance, let's take the 4th observation:
 
 ```{r slice-1, eval = FALSE}
 ncbikecrash %>% 
   slice(4)
 ```
 
-In `R`, the `:` specifies that we want everything from the left side of the colon to the right side. So, `1:8` would be "1 to 8." So, if we wanted to take the first eight observations, we could take the following slice:
+In `R`, the `:` specifies that we want everything from the left side of the 
+colon to the right side. So, `1:8` would be "1 to 8." So, if we wanted to take 
+the first eight observations, we could take the following slice:
 
 ```{r slice-2, eval = FALSE}
 ncbikecrash %>% 
@@ -157,16 +199,22 @@ ncbikecrash %>%
 
 ### select
 
-On the other hand, instead of choosing rows (observations), suppose we're interested in choosing columns (variables). We can use the `select` function to do so. Say we want to keep only the `locality` and `speed_limit` variables from the dataframe. Run the following code and see what happens:
+On the other hand, instead of choosing rows (observations), suppose we're 
+interested in choosing columns (variables). We can use the `select` function to 
+do so. Say we want to keep only the `locality` and `speed_limit` variables from 
+the dataframe. Run the following code and see what happens:
 
 ```{r select-1, eval = FALSE}
 ncbikecrash %>% 
   select(locality, speed_limit)
 ```
 
-We see that we have a new `tibble` consisting of only the locality and speed limit variables, but for all 7,467 observations. 
+We see that we have a new `tibble` consisting of only the locality and speed 
+limit variables, but for all 7,467 observations. 
 
-The magic of pipes is that we can continue to do more and more operations. Try running the following code, remembering that the pipe operator is pronounced "and then":
+The magic of pipes is that we can continue to do more and more operations. Try 
+running the following code, remembering that the pipe operator is pronounced 
+"and then":
 
 ```{r select-2, eval = FALSE}
 ncbikecrash %>% 
@@ -174,39 +222,19 @@ ncbikecrash %>%
   select(locality, speed_limit)
 ```
 
-What are we doing? We are taking the original dataset `ncbikecrash`, *and then* filtering observations where the county was Durham AND an ambulance was required AND the crash year was 2014 or greater, *and then* selecting to keep only the variables corresponding to locality and speed limit. The result is a `tibble` containing 28 observations of 2 variables.
+What are we doing? We are taking the original dataset `ncbikecrash`, *and then* 
+filtering observations where the county was Durham AND an ambulance was required 
+AND the crash year was 2014 or greater, *and then* selecting to keep only the
+variables corresponding to locality and speed limit. The result is a `tibble` 
+containing 28 observations of 2 variables.
 
-We can also use `select` to exclude variables. Suppose we want every variable EXCEPT the "region" variable. We can easily do that by using a minus sign:
+We can also use `select` to exclude variables. Suppose we want every variable 
+EXCEPT the "region" variable. We can easily do that by using a minus sign:
 
 ```{r select-3, eval = FALSE}
 ncbikecrash %>% 
   select(-region)
 ```
-
-And finally, we don't have to type each variable we want; we can `select` a range of variables at once. The 5th variable in `ncbikecrash` is `development`, and the 17th variable is `bike_direction`. Suppose we want to select those variables and all variables in between. We can use a `:` to do so:
-
-```{r select-4, eval = FALSE}
-ncbikecrash %>% 
-  select(development:bike_direction)
-```
-
-### pull
-
-Sometimes we'd rather have a column as a vector instead of as a dataframe. We can do that with the `pull` function. Compare the following two series of pipe operators by running them in the Console. What is the difference between the two?
-
-```{r pull-1, eval = FALSE}
-ncbikecrash %>% 
-  slice(5:10) %>% 
-  select(locality)
-```
-
-```{r pull-2, eval = FALSE}
-ncbikecrash %>% 
-  slice(5:10) %>% 
-  pull(locality)
-```
-
-We see that `select` returned a `tibble` of six observations and one variable (locality), whereas `pull` returned a *vector* of the same values. For now, don't worry too much about `pull`, just know that it is an option if you ever need it.
 
 ### sample_n and sample_frac
 
